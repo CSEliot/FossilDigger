@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using LoLSDK;
 
 public class AudioManager : MonoBehaviour {
 
@@ -14,8 +15,10 @@ public class AudioManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        gameObject.tag = "AudioMan";	
-	}
+        gameObject.tag = "AudioMan";
+        LOLSDK.Instance.PlaySound(AudioManager.GetMscName(0));
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -34,18 +37,32 @@ public class AudioManager : MonoBehaviour {
 
     private void _PlayM(int musicNum)
     {
-        MusicPlayer.Stop();
-        MusicPlayer.clip = Musics[musicNum];
-        MusicPlayer.Play();
-        Debug.Log("AUdio name?: " + Musics[musicNum].name);
+        if (Application.isEditor)
+        {
+            MusicPlayer.Stop();
+            MusicPlayer.clip = Musics[musicNum];
+            MusicPlayer.Play();
+        }
+        else
+        {
+            LOLSDK.Instance.PlaySound(AudioManager.GetMscName(musicNum), true, true);
+        }
+        CBUG.Do("AUdio name?: " + Musics[musicNum].name);
         //LOLSDK.Instance.PlaySound(Musics[musicNum].name
     }
 
     private void _PlayS(int sfxNum)
     {
-        SfxPlayer.Stop();
-        SfxPlayer.clip = Sfxs[sfxNum];
-        SfxPlayer.Play();
+        if (Application.isEditor)
+        {
+            SfxPlayer.Stop();
+            SfxPlayer.clip = Sfxs[sfxNum];
+            SfxPlayer.Play();
+        }
+        else
+        {
+            LOLSDK.Instance.PlaySound(AudioManager.GetMscName(sfxNum));
+        }
 
     }
 
