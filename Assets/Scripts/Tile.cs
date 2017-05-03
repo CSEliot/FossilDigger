@@ -22,7 +22,7 @@ public class Tile : MonoBehaviour {
 
     public void Move()
     {
-        GameObject.FindGameObjectWithTag("TileMan").GetComponent<TileMan>().Move(Pos);
+        GameObject.FindGameObjectWithTag("TileMan").GetComponent<BoardMan>().Move(Pos);
     }
 
 }

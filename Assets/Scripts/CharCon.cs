@@ -14,21 +14,18 @@ public class CharCon : MonoBehaviour {
     public int Score;
     public int MoveSpeed;
     public int Level;
-    public Vector2 TilePos; //From [1 - 6], [0 - inf)  
     private Vector2 CanvasPos; // Position in Canvas Space
 
-    public GameObject StartingTile;
-
-    private TileMan _TileMan; // "_SingleTon" Notation
+    //private BoardMan _BoardMan; // "_SingleTon" Notation
 
     // Use this for initialization
     void Start ()
     {
-        _TileMan = GameObject.FindGameObjectWithTag("TileMan").GetComponent<TileMan>();
+        //_BoardMan = GameObject.FindGameObjectWithTag("TileMan").GetComponent<BoardMan>();
         //transform.SetParent(StartingTile.transform);
         //StartCoroutine(DelayAction());
         //GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 00f);
-        TilePos = StartingTile.GetComponent<Tile>().Pos;
+
         CanvasPos = GetComponent<RectTransform>().anchoredPosition;
     }
 	
@@ -37,58 +34,44 @@ public class CharCon : MonoBehaviour {
 		
 	}
 
-    public static Vector2 GetPos()
-    {
-        return GameObject.FindGameObjectWithTag("Player").GetComponent<CharCon>().TilePos;
-    }
-
-
-    public static void Move(TileMan.Direction TargetDirection)
+    public static void Move(BoardMan.Direction TargetDirection)
     {
         GameObject.FindGameObjectWithTag("Player").GetComponent<CharCon>()._Move(TargetDirection);
     }
 
-    public void _Move(TileMan.Direction TargetDirection)
+    public void _Move(BoardMan.Direction TargetDirection)
     {
         switch (TargetDirection)
         {
-            case TileMan.Direction.North:
-                //if (TilePos.y == 1)
-                //    return false;
+            case BoardMan.Direction.North:
                 //Change Rotation
                 transform.localRotation = Quaternion.Euler(0f, 0f, 360f);
                 //Move
-                TilePos.Set(TilePos.x, TilePos.y - 1);
                 CanvasPos.Set(CanvasPos.x, CanvasPos.y + 100f);
                 GetComponent<RectTransform>().anchoredPosition = CanvasPos;
                 break;
-            case TileMan.Direction.East:
+            case BoardMan.Direction.East:
                 //if (TilePos.x == _TileMan.TotalCol - 1)
                 //    return false;
                 //Change Rotation
                 transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
                 //Move
-                TilePos.Set(TilePos.x + 1, TilePos.y);
                 CanvasPos.Set(CanvasPos.x + 100f, CanvasPos.y);
                 GetComponent<RectTransform>().anchoredPosition = CanvasPos;
                 break;
-            case TileMan.Direction.South:
-                //No pos check, south can go down infinitely
-
+            case BoardMan.Direction.South:
                 //Change Rotation
                 transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
                 //Move
-                TilePos.Set(TilePos.x, TilePos.y + 1);
                 CanvasPos.Set(CanvasPos.x, CanvasPos.y - 100f);
                 GetComponent<RectTransform>().anchoredPosition = CanvasPos;
                 break;
-            case TileMan.Direction.West:
+            case BoardMan.Direction.West:
                 //if (TilePos.x == 1)
                 //    return false;
                 //Change Rotation
                 transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
                 //Move
-                TilePos.Set(TilePos.x - 1, TilePos.y);
                 CanvasPos.Set(CanvasPos.x - 100f, CanvasPos.y);
                 GetComponent<RectTransform>().anchoredPosition = CanvasPos;
                 break;
