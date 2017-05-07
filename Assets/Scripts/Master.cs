@@ -19,7 +19,11 @@ public class Master : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+
+        //Arbitrarily Catch Debug - Breakpoint!
+        if (Input.GetKeyDown("k"))
+            CBUG.Do("Debug!");
+
 	}
 
     public void QuestionsReceived(MultipleChoiceQuestionList questionList)

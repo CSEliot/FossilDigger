@@ -15,6 +15,7 @@ public class Item : MonoBehaviour {
 
     public enum Type
     {
+        None,
         Fossil,
         Energy,
         Damage
@@ -32,9 +33,17 @@ public class Item : MonoBehaviour {
 
     public void SetType(Item.Type ItemType)
     {
-        Img.sprite = GFXs[(int)ItemType];
-        Damage = DamagePerType[(int)ItemType];
-        ExpYield = ExpYieldPerType[(int)ItemType];
-        this.ItemType = ItemType;
+        if(ItemType == Type.None)
+        {
+            Img.enabled = false;
+        }
+        else
+        {
+            Img.enabled = true;
+            Img.sprite = GFXs[((int)ItemType) - 1];
+            Damage = DamagePerType[((int)ItemType) - 1];
+            ExpYield = ExpYieldPerType[(int)ItemType - 1];
+            this.ItemType = ItemType;
+        }
     }
 }
