@@ -11,7 +11,8 @@ public class BoardMan : MonoBehaviour {
 
 
     public CharCon Player;
-
+    public GameManager Game;
+    
     public int Seed;
     public bool UseSeed;
 
@@ -42,7 +43,7 @@ public class BoardMan : MonoBehaviour {
 
     #region Position Tracking
     /// <summary>
-    /// Position in world. From [1 - 6], [1 - inf)  
+    /// Position in world. From [1 - 7], [1 - inf)  
     /// </summary>
     public Vector2 TileWorldPos;
     /// <summary>
@@ -135,6 +136,7 @@ public class BoardMan : MonoBehaviour {
     public void Move(Vector2 TargetPos)
     {
         Direction targetDirection = GetDirection(TargetPos);
+        Item.Type targetItem; 
         switch (targetDirection)
         {
             case Direction.North:
@@ -143,41 +145,48 @@ public class BoardMan : MonoBehaviour {
                     return;
                 //Only adjust tiles up
                 TileWorldPos += new Vector2(0, -1);
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
                 if (boardLocalPos.y <= AdjustDownThreshold && !(TileWorldPos.y < AdjustDownThreshold))
                 {
                     //Only adjust if we're not on the edge.
                     adjustTilesDown();
+                    Game.Update(targetItem);
                 }
                 else
                 {
-                    CharCon.Move(targetDirection);
+                    Game.Update(targetDirection, targetItem);
                     boardLocalPos += new Vector2(0, -1);
                 }
                 break;
             case Direction.South:
                 //no board checks necessary for south, we can go south forever
                 TileWorldPos += new Vector2(0, 1);
-                if(boardLocalPos.y >= AdjustUpThreshold)
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
+                if (boardLocalPos.y >= AdjustUpThreshold)
                 {
                     adjustTilesUp();
+                    Game.Update(targetItem);
                 }
                 else
                 {
-                    CharCon.Move(targetDirection);
+                    Game.Update(targetDirection, targetItem);
                     boardLocalPos += new Vector2(0, 1);
                 }
                 break;
             case Direction.East:
                 TileWorldPos += new Vector2(1, 0);
                 boardLocalPos += new Vector2(1, 0);
-                CharCon.Move(targetDirection);
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
+                Game.Update(targetDirection, targetItem);
                 break;
             case Direction.West:
                 TileWorldPos += new Vector2(-1, 0);
                 boardLocalPos += new Vector2(-1, 0);
-                CharCon.Move(targetDirection);
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
+                Game.Update(targetDirection, targetItem);
                 break;
             default:
+                CBUG.Error("Bad Direction given!" + targetDirection.ToString());
                 break;
         }
     }

@@ -18,7 +18,9 @@ public class Item : MonoBehaviour {
         None,
         Fossil,
         Energy,
-        Damage
+        Damage,
+        EBoost,
+        HBoost
     };
 
 	// Use this for initialization
