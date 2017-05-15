@@ -3,17 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Character Controller for handing all actionable player functions.
+/// Controllers are for "doing" and thus do not store any gameplay data.
+/// </summary>
 public class CharCon : MonoBehaviour {
 
     public Sprite MyLook;
     public Image Img;
-    public int Energy; //Health
-    public int Exp;
-    public int DepthInYears;
-    //public int DepthInFeet;
-    public int Score;
-    public int MoveSpeed;
-    public int Level;
     private Vector2 CanvasPos; // Position in Canvas Space
 
     //private BoardMan _BoardMan; // "_SingleTon" Notation

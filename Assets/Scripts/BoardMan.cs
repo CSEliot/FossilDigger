@@ -10,6 +10,8 @@ using UnityEngine.UI;
 public class BoardMan : MonoBehaviour {
 
 
+    private bool gamePaused;
+
     public CharCon Player;
     public GameManager Game;
     
@@ -77,6 +79,7 @@ public class BoardMan : MonoBehaviour {
         TileWorldPos = StartingTile.GetComponent<Tile>().Pos;
         boardLocalPos = TileWorldPos;
         totalPlayableCol = TotalCol - 2;
+        gamePaused = false;
     }
 	
 	// Update is called once per frame
@@ -135,6 +138,10 @@ public class BoardMan : MonoBehaviour {
     /// <param name="TargetPos"></param>
     public void Move(Vector2 TargetPos)
     {
+
+        if (gamePaused)
+            return;
+
         Direction targetDirection = GetDirection(TargetPos);
         Item.Type targetItem; 
         switch (targetDirection)
@@ -145,44 +152,44 @@ public class BoardMan : MonoBehaviour {
                     return;
                 //Only adjust tiles up
                 TileWorldPos += new Vector2(0, -1);
-                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 if (boardLocalPos.y <= AdjustDownThreshold && !(TileWorldPos.y < AdjustDownThreshold))
                 {
                     //Only adjust if we're not on the edge.
                     adjustTilesDown();
-                    Game.Update(targetItem);
+                    Game.Update(targetDirection, targetItem, true);
                 }
                 else
                 {
-                    Game.Update(targetDirection, targetItem);
                     boardLocalPos += new Vector2(0, -1);
+                    Game.Update(targetDirection, targetItem, false);
                 }
                 break;
             case Direction.South:
                 //no board checks necessary for south, we can go south forever
                 TileWorldPos += new Vector2(0, 1);
-                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 if (boardLocalPos.y >= AdjustUpThreshold)
                 {
                     adjustTilesUp();
-                    Game.Update(targetItem);
+                    Game.Update(targetDirection, targetItem, true);
                 }
                 else
                 {
-                    Game.Update(targetDirection, targetItem);
                     boardLocalPos += new Vector2(0, 1);
+                    Game.Update(targetDirection, targetItem, false);
                 }
                 break;
             case Direction.East:
                 TileWorldPos += new Vector2(1, 0);
                 boardLocalPos += new Vector2(1, 0);
-                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 Game.Update(targetDirection, targetItem);
                 break;
             case Direction.West:
                 TileWorldPos += new Vector2(-1, 0);
                 boardLocalPos += new Vector2(-1, 0);
-                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y - 1][(int)TileWorldPos.x - 1];
+                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 Game.Update(targetDirection, targetItem);
                 break;
             default:
@@ -276,7 +283,6 @@ public class BoardMan : MonoBehaviour {
         }
     }
 
-
     private void buildNewRow()
     {
         Item.Type[] tempArray = new Item.Type[totalPlayableCol];
@@ -288,5 +294,14 @@ public class BoardMan : MonoBehaviour {
             ItemBoardTypeHistory[newRow][col] = tempItemType;
         }
     }
-    
+
+    public bool GamePaused {
+        //get {
+        //    return gamePaused;
+        //}
+
+        set {
+            gamePaused = value;
+        }
+    }
 }

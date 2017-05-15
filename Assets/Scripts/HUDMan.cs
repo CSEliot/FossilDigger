@@ -66,11 +66,11 @@ public class HUDMan : MonoBehaviour {
     }
     private void _setDepth(float depth)
     {
-        depthText.text = depth.ToString() + " Feet";
+        depthText.text = depth.ToString() + " Feet Deep";
     }
     private void _setAbsoluteAge(float age)
     {
-        absoluteAgeText.text = age.ToString() + " Years";
+        absoluteAgeText.text = age.ToString() + " Years Ago";
     }
     //TODO FINISH THIS
     #endregion

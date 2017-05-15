@@ -1,9 +1,33 @@
 fileFormatVersion: 2
 guid: e3f49df391ce8fb42895f10651455ed2
-timeCreated: 1488964298
+timeCreated: 1494873876
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: Window2_0
+    21300002: Window2_1
+    21300004: Window2_2
+    21300006: Window2_3
+    21300008: Window2_4
+    21300010: Window2_5
+    21300012: Window2_6
+    21300014: Window2_7
+    21300016: Window2_8
+    21300018: Window2_9
+    21300020: Window2_10
+    21300022: Window2_11
+    21300024: Window2_12
+    21300026: Window2_13
+    21300028: Window2_14
+    21300030: Window2_15
+    21300032: Window2_16
+    21300034: Window2_17
+    21300036: Window2_18
+    21300038: Window2_19
+    21300040: Window2_20
+    21300042: Window2_21
+    21300044: Window2_22
+    21300046: Window2_23
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -34,7 +58,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -58,9 +82,361 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+  - buildTarget: Standalone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: iPhone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Android
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Tizen
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: WebGL
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Window2_0
+      rect:
+        serializedVersion: 2
+        x: 1324
+        y: 3138
+        width: 210
+        height: 46
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_1
+      rect:
+        serializedVersion: 2
+        x: 2243
+        y: 3138
+        width: 210
+        height: 46
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_2
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 2177
+        width: 825
+        height: 942
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_3
+      rect:
+        serializedVersion: 2
+        x: 1018
+        y: 2197
+        width: 824
+        height: 922
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_4
+      rect:
+        serializedVersion: 2
+        x: 1936
+        y: 2197
+        width: 825
+        height: 922
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_5
+      rect:
+        serializedVersion: 2
+        x: 2869
+        y: 2324
+        width: 479
+        height: 552
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_6
+      rect:
+        serializedVersion: 2
+        x: 1048
+        y: 2077
+        width: 260
+        height: 39
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_7
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 1451
+        width: 640
+        height: 613
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_8
+      rect:
+        serializedVersion: 2
+        x: 858
+        y: 1458
+        width: 642
+        height: 606
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_9
+      rect:
+        serializedVersion: 2
+        x: 1575
+        y: 1458
+        width: 640
+        height: 606
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_10
+      rect:
+        serializedVersion: 2
+        x: 2285
+        y: 1805
+        width: 422
+        height: 120
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_11
+      rect:
+        serializedVersion: 2
+        x: 2438
+        y: 1698
+        width: 240
+        height: 85
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_12
+      rect:
+        serializedVersion: 2
+        x: 2438
+        y: 1598
+        width: 240
+        height: 88
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_13
+      rect:
+        serializedVersion: 2
+        x: 1286
+        y: 1349
+        width: 138
+        height: 40
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_14
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 684
+        width: 793
+        height: 648
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_15
+      rect:
+        serializedVersion: 2
+        x: 957
+        y: 727
+        width: 794
+        height: 605
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_16
+      rect:
+        serializedVersion: 2
+        x: 1802
+        y: 727
+        width: 793
+        height: 605
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_17
+      rect:
+        serializedVersion: 2
+        x: 2687
+        y: 842
+        width: 473
+        height: 346
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_18
+      rect:
+        serializedVersion: 2
+        x: 1741
+        y: 627
+        width: 101
+        height: 39
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_19
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 64
+        width: 641
+        height: 545
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_20
+      rect:
+        serializedVersion: 2
+        x: 772
+        y: 64
+        width: 641
+        height: 545
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_21
+      rect:
+        serializedVersion: 2
+        x: 1471
+        y: 64
+        width: 641
+        height: 545
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_22
+      rect:
+        serializedVersion: 2
+        x: 2192
+        y: 64
+        width: 641
+        height: 545
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Window2_23
+      rect:
+        serializedVersion: 2
+        x: 2875
+        y: 152
+        width: 315
+        height: 319
+      alignment: 1
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
     outline: []
   spritePackingTag: 
   userData: 

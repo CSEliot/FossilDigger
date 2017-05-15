@@ -5,9 +5,15 @@ using UnityEngine.UI;
 using LoLSDK;
 
 public class QuizMan : MonoBehaviour {
-    
+
+    public BoardMan _BoardMan;
+
     public GameObject[] QButtons;
     public GameObject QPanel;
+
+    public GameObject CorrectPanel;
+    public GameObject IncorrectPanel;
+    public float ConfirmationPanelHangTime;
 
     [System.Serializable]
     public struct Quiz
@@ -27,11 +33,11 @@ public class QuizMan : MonoBehaviour {
     public Text[] AnswerBoxes;
 
     private int currentQuestion;
-    private Animator quizAnim;
+    public Animator QuizAnim;
 
     public Image QuizImg;
     public GameObject QuizImgObject;
-    public GameObject QuizImgButton;
+    public GameObject QuizImgObjectBackground;
     public Sprite LoadingImg;
 
     private string[] alternativeIDs;
@@ -42,13 +48,12 @@ public class QuizMan : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        if (Application.isEditor)
+        if (Application.isEditor || !Application.absoluteURL.Contains("harness"))
         {
             testQuizFunctionality();
         }
 
         currentQuestion = -1;
-        quizAnim = GetComponent<Animator>();
         LOLSDK.Instance.QuestionsReceived += new QuestionListReceivedHandler(GetQuestions);
     }
 	
@@ -114,39 +119,42 @@ public class QuizMan : MonoBehaviour {
             //gCont.CurrentScore++;
         }
 
+        for (int x = 0; x < AnswerBoxes.Length; x++)
+        {
+            QButtons[x].SetActive(false);
+        }
+
         if (currentDailyQuestions >= DailyQuestionsMax)
         {
             if (quizzes[currentQuestion].Answers_ID[answerNum] == quizzes[currentQuestion].CorrectAnswer_ID)
             {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Thanks;
+                showConfirmationPanel(true);
+                StartCoroutine(hideConfirmationPanel(true));
             }
             else
             {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Anger;
+                showConfirmationPanel(true);
+                StartCoroutine(hideConfirmationPanel(true));
             }
-            quizAnim.SetTrigger("Exit");
-            //gCont.FrontChar.SetTrigger("WalkOut");
-            //gCont.QuestionAsked = false;
-            //gCont.UpdateCurrentProgress();
-
-            //gCont.Smoke.Play();
-            //gCont.Parts.PartSys.Play();
-            //gCont.IsPaused = false;
-            //gCont.Parts.IsPaused = false;
-            currentDailyQuestions = 0;
+            StartCoroutine(delayNextQuestion(true));
         }
         else
         {
             if (quizzes[currentQuestion].Answers_ID[answerNum] == quizzes[currentQuestion].CorrectAnswer_ID)
             {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Thanks;
+                showConfirmationPanel(false);
+                StartCoroutine(hideConfirmationPanel(false));
             }
             else
             {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Anger;
+                showConfirmationPanel(false);
+                StartCoroutine(hideConfirmationPanel(false));
             }
-            quizAnim.SetTrigger("Exit");
-            Init(false);
+            StartCoroutine(delayNextQuestion(false));
         }
     }
 
@@ -156,12 +164,11 @@ public class QuizMan : MonoBehaviour {
             currentQuestion = -1;
         currentQuestion++;
         currentDailyQuestions++;
-        quizAnim.SetTrigger("Quiz");
 
         //If no image exists, hide the graphic
-        QuizImgButton.SetActive(false);
         QuizImg.color = new Color(1f, 1f, 1f, 0f);
         QuizImgObject.SetActive(false);
+        QuizImgObjectBackground.SetActive(false);
 
         string spriteURL = null;
         spriteURL = quizzes[currentQuestion].SpriteURL;
@@ -181,6 +188,10 @@ public class QuizMan : MonoBehaviour {
         {
                 QButtons[x].SetActive(false);
         }
+
+        FinishQInit();
+        if (firstLoad)
+            QuizAnim.SetTrigger("Quiz");
     }
 
     /// <summary>
@@ -193,8 +204,8 @@ public class QuizMan : MonoBehaviour {
         spriteURL = quizzes[currentQuestion].SpriteURL;
         if (!string.IsNullOrEmpty(spriteURL))
         {
-            QuizImgButton.SetActive(true);
-            //QuizImgObject.SetActive(true);
+            QuizImgObject.SetActive(true);
+            QuizImgObjectBackground.SetActive(true);
             QuizImg.color = new Color(1f, 1f, 1f, 1f);
         }
 
@@ -300,9 +311,51 @@ public class QuizMan : MonoBehaviour {
     {
         if (text.Contains("[IMAGE]"))
         {
-            return text.Replace("[IMAGE]", "(See Image)");
+            return text.Replace("[IMAGE]", "\n(See Image)\n");
         }
         return text;
+    }
+
+    private void showConfirmationPanel(bool isAnswerCorrect)
+    {
+        if (isAnswerCorrect)
+        {
+            CorrectPanel.SetActive(true);
+            CorrectPanel.GetComponent<Animator>().SetTrigger("Quiz");
+        }
+        else
+        {
+            IncorrectPanel.SetActive(true);
+            IncorrectPanel.GetComponent<Animator>().SetTrigger("Quiz");
+        }
+    }
+
+    private IEnumerator hideConfirmationPanel(bool isAnswerCorrect)
+    {
+        yield return new WaitForSeconds(ConfirmationPanelHangTime);
+        if(isAnswerCorrect)
+            CorrectPanel.GetComponent<Animator>().SetTrigger("Exit");
+        else
+            IncorrectPanel.GetComponent<Animator>().SetTrigger("Exit");
+        CorrectPanel.SetActive(false);
+        IncorrectPanel.SetActive(false);
+        //Yes i'm aware it's redundant to call an animation then immediately disable it.
+    }
+
+    private IEnumerator delayNextQuestion(bool isLastQuestion)
+    {
+        yield return new WaitForSeconds(ConfirmationPanelHangTime);
+        if (isLastQuestion)
+        {
+            QuizAnim.SetTrigger("Exit");
+            _BoardMan.GamePaused = false;
+            currentDailyQuestions = 0;
+        }
+        else
+        {
+            Init(false);
+        }
+
     }
 }
 
