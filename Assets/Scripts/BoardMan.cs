@@ -19,7 +19,13 @@ public class BoardMan : MonoBehaviour {
     public bool UseSeed;
 
     #region Tile Organization - Active
+    /// <summary>
+    /// from [0 - 6], [0 - inf) storing what item spawned and where, generated procedurally.
+    /// </summary>
     public List<Item.Type[]> ItemBoardTypeHistory;
+    /// <summary>
+    /// All the panel objects on the board from [0 - 6], [0 - 6]
+    /// </summary>
     public List<GameObject[]> ItemBoardObjs;
     public GameObject TopRow; //For enabling top row buttons later on.
     /// <summary>
@@ -99,7 +105,7 @@ public class BoardMan : MonoBehaviour {
         {
             //Background Tiles
             transform.GetChild(y).GetComponent<RectTransform>().anchoredPosition = new Vector2(xPosCol, yPosCol);
-            
+
             //Items
             Item.Type[] tempArrayA = new Item.Type[7];
             ItemBoardTypeHistory.Add(tempArrayA);
@@ -119,9 +125,14 @@ public class BoardMan : MonoBehaviour {
                     GameObject itemTemp = Instantiate(ItemPrefab, transform.GetChild(y).GetChild(x), false) as GameObject;
                     Item.Type tempItemType;
                     if (y == 0)
+                    {
                         tempItemType = Item.Type.None;
+                    }
                     else
+                    {
+                        Random.InitState(x * y);
                         tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
+                    }
                     itemTemp.GetComponent<Item>().SetType(tempItemType);
                     ItemBoardTypeHistory[y][x - 1] = tempItemType;
                     ItemBoardObjs[y][x - 1] = itemTemp;
@@ -152,7 +163,7 @@ public class BoardMan : MonoBehaviour {
                     return;
                 //Only adjust tiles up
                 TileWorldPos += new Vector2(0, -1);
-                targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
+                targetItem = ItemBoardObjs[(int)boardLocalPos.y][(int)boardLocalPos.x].GetComponent<Item>().ItemType;//ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 if (boardLocalPos.y <= AdjustDownThreshold && !(TileWorldPos.y < AdjustDownThreshold))
                 {
                     //Only adjust if we're not on the edge.
@@ -246,7 +257,10 @@ public class BoardMan : MonoBehaviour {
         {
             for(int col = 0; col < totalPlayableCol; col++)
             {
-                ItemBoardObjs[y][col].GetComponent<Item>().SetType(ItemBoardTypeHistory[y + (int)TileWorldPos.y - AdjustUpThreshold][col]);
+                Random.InitState((y + (int)TileWorldPos.y - AdjustUpThreshold) * col);
+                Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
+                ItemBoardObjs[y][col].GetComponent<Item>().SetType(tempItemType);
+                //ItemBoardObjs[y][col].GetComponent<Item>().SetType(ItemBoardTypeHistory[y + (int)TileWorldPos.y - AdjustUpThreshold][col]);
             }
         }
         if(TileWorldPos.y >= AdjustDownThreshold)
@@ -269,7 +283,9 @@ public class BoardMan : MonoBehaviour {
             for (int col = 0; col < totalPlayableCol; col++)
             {
                 {
-                    ItemBoardObjs[y][col].GetComponent<Item>().SetType(ItemBoardTypeHistory[y + ((int)TileWorldPos.y - (AdjustDownThreshold))][col]);
+                    Random.InitState((y + ((int)TileWorldPos.y - (AdjustDownThreshold))) * col);
+                    Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
+                    ItemBoardObjs[y][col].GetComponent<Item>().SetType(tempItemType);//ItemBoardTypeHistory[y + ((int)TileWorldPos.y - (AdjustDownThreshold))][col]);
                 }
             }
         }
@@ -290,6 +306,7 @@ public class BoardMan : MonoBehaviour {
         int newRow = (int)TileWorldPos.y + ((TotalRows - 1) - AdjustUpThreshold);
         for (int col = 0; col < totalPlayableCol; col++)
         {
+            Random.InitState(newRow * col);
             Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
             ItemBoardTypeHistory[newRow][col] = tempItemType;
         }
