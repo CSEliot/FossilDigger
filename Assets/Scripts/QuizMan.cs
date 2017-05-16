@@ -294,7 +294,7 @@ public class QuizMan : MonoBehaviour {
             quizzes[x].Answers = new string[quizzes[x].TotalAnswerChoices];
             quizzes[x].Answers_ID = new string[quizzes[x].TotalAnswerChoices];
             // 50/50 chance spriteURL is either null or an image.
-            quizzes[x].SpriteURL =  Random.Range(0, 2) == 0 ? null : "http://i.imgur.com/pResL3f.jpg";
+            quizzes[x].SpriteURL =  Random.Range(0, 2) == 0 ? null : "http://i.imgur.com/jQLvoPK.png";
 
             for (int y = 0; y < quizzes[x].TotalAnswerChoices; y++)
             {

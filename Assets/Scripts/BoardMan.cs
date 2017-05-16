@@ -63,6 +63,9 @@ public class BoardMan : MonoBehaviour {
     public GameObject StartingTile;
     #endregion
 
+    //TODO: Fit sprite sheet width n height into powers of 2, individually. 
+    // Load a different image for testing that's WAY Smaller.
+
     [System.Serializable]
     public enum Direction
     {
