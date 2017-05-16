@@ -33,7 +33,7 @@ public class CharCon : MonoBehaviour {
 
     public static void Move(BoardMan.Direction TargetDirection)
     {
-        GameObject.FindGameObjectWithTag("Player").GetComponent<CharCon>()._Move(TargetDirection);
+        GetRef()._Move(TargetDirection);
     }
 
     public void _Move(BoardMan.Direction TargetDirection)
@@ -77,9 +77,44 @@ public class CharCon : MonoBehaviour {
         }
     }
 
+    public static void Rotate( BoardMan.Direction TargetDirection)
+    {
+        GetRef()._Rotate(TargetDirection);
+    }
+
+    public void _Rotate(BoardMan.Direction TargetDirection)
+    {
+        switch (TargetDirection)
+        {
+            case BoardMan.Direction.North:
+                //Change Rotation
+                transform.localRotation = Quaternion.Euler(0f, 0f, 360f);
+                break;
+            case BoardMan.Direction.East:
+                //Change Rotation
+                transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
+                break;
+            case BoardMan.Direction.South:
+                //Change Rotation
+                transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
+                break;
+            case BoardMan.Direction.West:
+                //Change Rotation
+                transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+                break;
+            default:
+                break;
+        }
+    }
+
     public IEnumerator DelayAction()
     {
         yield return null;
         transform.SetSiblingIndex(1);
+    }
+
+    public static CharCon GetRef()
+    {
+        return GameObject.FindGameObjectWithTag("Player").GetComponent<CharCon>();
     }
 }

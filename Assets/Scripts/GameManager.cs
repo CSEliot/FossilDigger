@@ -76,14 +76,18 @@ public class GameManager : MonoBehaviour {
             if(Direction == BoardMan.Direction.North)
             {
                 depth -= 10;
+                absoluteAge -= 3;
             }
             else if(Direction == BoardMan.Direction.South)
             {
                 depth += 10;
+                absoluteAge += 3;
             }
         }
         if(!onEdge)
             CharCon.Move(Direction);
+        else
+            CharCon.Rotate(Direction);
 
         switch (TargetItem)
         {

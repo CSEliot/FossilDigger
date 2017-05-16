@@ -203,6 +203,9 @@ public class BoardMan : MonoBehaviour {
                 targetItem = ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 Game.Update(targetDirection, targetItem);
                 break;
+            case Direction.None:
+                CBUG.Do("Player clicked on ship's location!");
+                break;
             default:
                 CBUG.Error("Bad Direction given!" + targetDirection.ToString());
                 break;

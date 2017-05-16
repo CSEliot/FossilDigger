@@ -16,7 +16,8 @@ public class AudioManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         gameObject.tag = "AudioMan";
-        LOLSDK.Instance.PlaySound(AudioManager.GetMscName(0));
+        //LOLSDK.Instance.PlaySound(AudioManager.GetMscName(0));
+        _PlayM(0);
 
     }
 	
