@@ -11,6 +11,7 @@ public class BoardMan : MonoBehaviour {
 
 
     private bool gamePaused;
+    private bool itemsUpdatePaused;
 
     public CharCon Player;
     public GameManager Game;
@@ -43,7 +44,7 @@ public class BoardMan : MonoBehaviour {
     public float XPosStartWorldSpace;
     public float YPosStartWorldSpace;
     public int TotalRows;
-    private int totalRowsGenerated;
+    private int deepestRowGenerated;
     public int TotalCol;
     private int totalPlayableCol;
     public GameObject ItemPrefab;
@@ -63,8 +64,7 @@ public class BoardMan : MonoBehaviour {
     public GameObject StartingTile;
     #endregion
 
-    //TODO: Fit sprite sheet width n height into powers of 2, individually. 
-    // Load a different image for testing that's WAY Smaller.
+    //TODO: TELEPORT FUNCTIONALITY FOR LOSING ALL HEALTH OR ENERGY OR GETTING Q CORRECT.
 
     [System.Serializable]
     public enum Direction
@@ -82,7 +82,7 @@ public class BoardMan : MonoBehaviour {
         //ItemBoardTypeHistory = new List<Item.Type[]>();
         ItemBoardObjs = new List<GameObject[]>();
         usedItemHistory = new List<List<int>>();
-        totalRowsGenerated = 0;
+        deepestRowGenerated = 0;
         Arrange();
         //Debug.Log("YES");
         if (UseSeed)
@@ -96,7 +96,23 @@ public class BoardMan : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	}
+        if (Input.GetKeyDown("k"))
+        {
+            TeleportDistance(10);
+        }
+        if (Input.GetKeyDown("l"))
+        {
+            TeleportDistance(3);
+        }
+        if (Input.GetKeyDown("i"))
+        {
+            TeleportDistance(-10);
+        }
+        if (Input.GetKeyDown("o"))
+        {
+            TeleportDistance(-3);
+        }
+    }
 
     /// <summary>
     /// Arrange tile objects properly.
@@ -135,17 +151,18 @@ public class BoardMan : MonoBehaviour {
                     }
                     else
                     {
-                        Random.InitState((x - 1) * y);
+                        Random.InitState(x * y);
                         tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
                     }
-                    itemTemp.GetComponent<Item>().SetType(tempItemType);
+                    itemTemp.GetComponent<Item>().ItemType = tempItemType;
                     //ItemBoardTypeHistory[y][x - 1] = tempItemType;
                     ItemBoardObjs[y][x - 1] = itemTemp;
                 }
             }
             xPosRow = 112f;
             yPosCol -= 100f;
-            totalRowsGenerated++;
+            deepestRowGenerated++;
+            usedItemHistory.Add(new List<int>());
         }
     }
 
@@ -173,13 +190,22 @@ public class BoardMan : MonoBehaviour {
                 if (boardLocalPos.y <= AdjustDownThreshold && !(TileWorldPos.y < AdjustDownThreshold))
                 {
                     //Only adjust if we're not on the edge.
-                    adjustTilesDown();
-                    Game.Update(targetDirection, targetItem, true);
+                    updateTiles();
+                    if (itemsUpdatePaused)
+                    {
+                        Game.Update(targetDirection, Item.Type.None, true);
+                    }
+                    else
+                    {
+                        updateItems();
+                        Game.Update(targetDirection, targetItem, true);
+                    }
                 }
                 else
                 {
                     boardLocalPos += new Vector2(0, -1);
                     Game.Update(targetDirection, targetItem, false);
+                    usedItemHistory[(int)TileWorldPos.y].Add((int)TileWorldPos.x);
                 }
                 break;
             case Direction.South:
@@ -188,13 +214,22 @@ public class BoardMan : MonoBehaviour {
                 targetItem = ItemBoardObjs[(int)boardLocalPos.y + 1][(int)boardLocalPos.x].GetComponent<Item>().ItemType;//ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 if (boardLocalPos.y >= AdjustUpThreshold)
                 {
-                    adjustTilesUp();
-                    Game.Update(targetDirection, targetItem, true);
+                    updateTiles();
+                    if (itemsUpdatePaused)
+                    {
+                        Game.Update(targetDirection, Item.Type.None, true);
+                    }
+                    else
+                    {
+                        updateItems();
+                        Game.Update(targetDirection, targetItem, true);
+                    }
                 }
                 else
                 {
                     boardLocalPos += new Vector2(0, 1);
                     Game.Update(targetDirection, targetItem, false);
+                    usedItemHistory[(int)TileWorldPos.y].Add((int)TileWorldPos.x);
                 }
                 break;
             case Direction.East:
@@ -202,12 +237,14 @@ public class BoardMan : MonoBehaviour {
                 boardLocalPos += new Vector2(1, 0);
                 targetItem = ItemBoardObjs[(int)boardLocalPos.y][(int)boardLocalPos.x].GetComponent<Item>().ItemType;//ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 Game.Update(targetDirection, targetItem);
+                usedItemHistory[(int)TileWorldPos.y].Add((int)TileWorldPos.x);
                 break;
             case Direction.West:
                 TileWorldPos += new Vector2(-1, 0);
                 boardLocalPos += new Vector2(-1, 0);
                 targetItem = ItemBoardObjs[(int)boardLocalPos.y][(int)boardLocalPos.x].GetComponent<Item>().ItemType;//ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
                 Game.Update(targetDirection, targetItem);
+                usedItemHistory[(int)TileWorldPos.y].Add((int)TileWorldPos.x);
                 break;
             case Direction.None:
                 CBUG.Do("Player clicked on ship's location!");
@@ -216,6 +253,7 @@ public class BoardMan : MonoBehaviour {
                 CBUG.Error("Bad Direction given!" + targetDirection.ToString());
                 break;
         }
+        
     }
 
     /// <summary>
@@ -240,41 +278,27 @@ public class BoardMan : MonoBehaviour {
     }
 
     /// <summary>
-    /// 
+    /// Tiles moving down means player moving up.
     /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    public void PlaceItem(int x, int y)
+    private void updateTiles()
     {
-
-    }
-
-    /// <summary>
-    /// Tiles moving up means player moving down.
-    /// </summary>
-    private void adjustTilesUp()
-    {
-        //Digging down into a new row
-        // Math: If the Current World Pos + distance from nongenerated bottom edge is more than
-        //       the currently generated list of rows, then make more rows for us to traverse on.
         int newRow = (int)TileWorldPos.y + ((TotalRows - 1) - AdjustUpThreshold); //New Row standardized
-        if (newRow >= totalRowsGenerated)
+        if (newRow >= deepestRowGenerated)
         {
-            totalRowsGenerated++;
-            //make new row
-            //buildNewRow();
+            deepestRowGenerated++;
+            usedItemHistory.Add(new List<int>());
         }
-        for(int y = 0; y < TotalRows; y++)
+        usedItemHistory[(int)TileWorldPos.y].Add((int)TileWorldPos.x);
+        //Set y row buttons to uninteractable if we reach the top level.
+        if (TileWorldPos.y <= AdjustDownThreshold)
         {
-            for(int col = 0; col < totalPlayableCol; col++)
+            for (int x = 0; x < totalPlayableCol; x++)
             {
-                Random.InitState((y + (int)TileWorldPos.y - AdjustUpThreshold) * col);
-                Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
-                ItemBoardObjs[y][col].GetComponent<Item>().SetType(tempItemType);
-                //ItemBoardObjs[y][col].GetComponent<Item>().SetType(ItemBoardTypeHistory[y + (int)TileWorldPos.y - AdjustUpThreshold][col]);
+                TopRow.transform.GetChild(x + 1).GetComponent<Button>().interactable = false;
+                //ItemBoardObjs[0][x].GetComponent<Item>().ItemType = Item.Type.None;
             }
         }
-        if(TileWorldPos.y >= AdjustDownThreshold)
+        else
         {
             // Top edge being itemless ends whenever we move down, adjusting tiles up, pushing items into itemless area.
             for (int x = 0; x < totalPlayableCol; x++)
@@ -283,47 +307,6 @@ public class BoardMan : MonoBehaviour {
             }
         }
     }
-
-    /// <summary>
-    /// Tiles moving down means player moving up.
-    /// </summary>
-    private void adjustTilesDown()
-    {
-        for (int y = 0; y < TotalRows; y++)
-        {
-            for (int col = 0; col < totalPlayableCol; col++)
-            {
-                {
-                    Random.InitState((y + ((int)TileWorldPos.y - (AdjustDownThreshold))) * col);
-                    Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
-                    ItemBoardObjs[y][col].GetComponent<Item>().SetType(tempItemType);//ItemBoardTypeHistory[y + ((int)TileWorldPos.y - (AdjustDownThreshold))][col]);
-                }
-            }
-        }
-        //Set y row buttons to uninteractable if we reach the top level.
-        if (TileWorldPos.y <= AdjustDownThreshold)
-        {
-            for (int x = 0; x < totalPlayableCol; x++)
-            {
-                TopRow.transform.GetChild(x + 1).GetComponent<Button>().interactable = false;
-                ItemBoardObjs[0][x].GetComponent<Item>().SetType(Item.Type.None);
-            }
-        }
-    }
-
-    private void buildNewRow()
-    {
-        //Item.Type[] tempArray = new Item.Type[totalPlayableCol];
-        //ItemBoardTypeHistory.Add(tempArray);
-        int newRow = (int)TileWorldPos.y + ((TotalRows - 1) - AdjustUpThreshold);
-        for (int col = 0; col < totalPlayableCol; col++)
-        {
-            Random.InitState(newRow * col);
-            Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
-            //ItemBoardTypeHistory[newRow][col] = tempItemType;
-        }
-    }
-
     public bool GamePaused {
         //get {
         //    return gamePaused;
@@ -333,4 +316,143 @@ public class BoardMan : MonoBehaviour {
             gamePaused = value;
         }
     }
+
+    /// <summary>
+    /// Move Up/Down/Left/Right relative to current position.
+    /// </summary>
+    /// <param name="worldY">Tile World Position</param>
+    /// <param name="worldX">Tile World Position</param>
+    public void TeleportDistance(int worldY, int worldX = 0)
+    {
+        itemsUpdatePaused = true;
+        if (worldX != 0)
+        {
+            Vector2 horizTarget = new Vector2(worldX > 0 ? 99f : -99f, boardLocalPos.y);
+            for (; worldX > 0; worldX--)
+                Move(horizTarget);
+            
+        }
+        if (worldY != 0)
+        {
+            Vector2 vertTarget = new Vector2(boardLocalPos.x + 1, worldY > 0 ? 99f : -99f);
+            for (; worldY > 0; worldY--)
+                Move(vertTarget);
+        }
+        itemsUpdatePaused = false;
+        updateItems();
+
+        ////Edge Case Not Handled: X + Pos > or < Bounds
+        ////Edge Case: Not TPing past 0
+        //if (worldY + TileWorldPos.y < 0)
+        //    worldY = (int)TileWorldPos.y * -1;
+
+        //int signY = worldY < 0 ? -1 : 1;
+        //int signX = worldX < 0 ? -1 : 1;
+
+        //if (worldX != 0)
+        //{
+        //    for (int x = 0; x < worldX; x++)
+        //    {
+        //        TileWorldPos += new Vector2(0, 1 * signX);
+        //        Game.Update(worldX > 0 ? Direction.East : Direction.West, Item.Type.None, true);
+        //    }
+        //}
+
+        //if (worldY != 0)
+        //{
+        //    for (int y = 0; y < worldY; y++)
+        //    {
+        //        TileWorldPos += new Vector2(0, 1 * signY);
+        //        int newRow = (int)TileWorldPos.y + ((TotalRows - 1) - AdjustUpThreshold); //New Row standardized
+        //        if (newRow >= deepestRowGenerated)
+        //        {
+        //            deepestRowGenerated++;
+        //            usedItemHistory.Add(new List<int>());
+        //        }
+        //        Game.Update(worldY > 0 ? Direction.East : Direction.West, Item.Type.None, true);
+        //    }
+        //}
+
+        //updateItems();
+
+
+    }
+
+    /// <summary>
+    /// Arrange items based on player location, relative to tile's unique world position.
+    /// </summary>
+    private void updateItems()
+    {
+        for (int boardY = 0; boardY < TotalRows; boardY++)
+        {
+            for (int boardX = 0; boardX < totalPlayableCol; boardX++)
+            {
+                int worldY = boardY + (int)TileWorldPos.y - (int)boardLocalPos.y;
+                int worldX = boardX;
+                if (usedItemHistory[worldY].Contains(worldX))
+                {
+                    ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = Item.Type.None;
+                }
+                else
+                {
+                    Random.InitState(worldY * (worldX + 1));
+                    Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
+                    ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = tempItemType;//ItemBoardTypeHistory[y + ((int)TileWorldPos.y - (AdjustDownThreshold))][col]);
+                }
+            }
+        }
+        if (TileWorldPos.y <= AdjustDownThreshold - 1)
+        {
+            for (int x = 0; x < totalPlayableCol; x++)
+            {
+                ItemBoardObjs[0][x].GetComponent<Item>().ItemType = Item.Type.None;
+            }
+        }
+    }
+
 }
+
+//private void buildNewRow()
+//{
+//    //Item.Type[] tempArray = new Item.Type[totalPlayableCol];
+//    //ItemBoardTypeHistory.Add(tempArray);
+//    int newRow = (int)TileWorldPos.y + ((TotalRows - 1) - AdjustUpThreshold);
+//    for (int col = 0; col < totalPlayableCol; col++)
+//    {
+//        Random.InitState(newRow * col);
+//        Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
+//        //ItemBoardTypeHistory[newRow][col] = tempItemType;
+//    }
+//}
+
+///// <summary>
+///// Tiles moving up means player moving down.
+///// </summary>
+//private void adjustTilesUp()
+//{
+//    //Digging down into a new row
+//    // Math: If the Current World Pos + distance from nongenerated bottom edge is more than
+//    //       the currently generated list of rows, then make more rows for us to traverse on.
+
+//    usedItemHistory[(int)TileWorldPos.y].Add((int)TileWorldPos.x);
+//    for(int boardY = 0; boardY < TotalRows; boardY++)
+//    {
+//        for(int boardX = 0; boardX < totalPlayableCol; boardX++)
+//        {
+//            int worldY = boardY + (int)TileWorldPos.y - (TotalRows - 1) + 1;
+//            int worldX = boardX;
+//            if (usedItemHistory[worldY].Contains(worldX))
+//            {
+//                ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = Item.Type.None;
+//            }
+//            else
+//            {
+//                Random.InitState((boardY + (int)TileWorldPos.y - AdjustUpThreshold) * boardX);
+//                Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
+//                ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = tempItemType;
+//            }
+//            //ItemBoardObjs[y][col].GetComponent<Item>().SetType(ItemBoardTypeHistory[y + (int)TileWorldPos.y - AdjustUpThreshold][col]);
+//        }
+//    }
+
+//}

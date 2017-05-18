@@ -13,6 +13,12 @@ public class SpawnMan : MonoBehaviour {
     [Range(0, 100f)]
     public float Damage;
 
+    [Range(0, 100f)]
+    public float EBoost;
+
+    [Range(0, 100f)]
+    public float HBoost;
+
 
     // Use this for initialization
     void Start () {
@@ -42,11 +48,15 @@ public class SpawnMan : MonoBehaviour {
 
     private Item.Type _spawnOnChance(float rngNumber)
     {
-        if (rngNumber < Fossil)
+        if      (rngNumber < Fossil)
             return Item.Type.Fossil;
         else if (rngNumber < Energy)
             return Item.Type.Energy;
-        else
+        else if (rngNumber < Damage)
             return Item.Type.Damage;
+        else if (rngNumber < EBoost)
+            return Item.Type.EBoost;
+        else
+            return Item.Type.HBoost;
     }
 }

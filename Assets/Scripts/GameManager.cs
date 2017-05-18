@@ -34,6 +34,10 @@ public class GameManager : MonoBehaviour {
         HUDMan.SetDepth(StartingDepth);
         HUDMan.SetEnergy(StartingEnergy, StartingEnergy);
         HUDMan.SetHealth(StartingHealth, StartingHealth);
+        energy = StartingEnergy;
+        health = StartingHealth;
+        maxEnergy = StartingEnergy;
+        maxHealth = StartingHealth;
         //AudioManager.PlayM(0);
     }
 	
@@ -84,6 +88,7 @@ public class GameManager : MonoBehaviour {
                 absoluteAge += 3;
             }
         }
+
         if(!onEdge)
             CharCon.Move(Direction);
         else
@@ -91,6 +96,10 @@ public class GameManager : MonoBehaviour {
 
         switch (TargetItem)
         {
+            case Item.Type.None:
+                //Player Data Calls
+                //UI Calls
+                break;
             case Item.Type.Fossil:
                 //Player Data Calls
                 //UI Calls
@@ -98,18 +107,24 @@ public class GameManager : MonoBehaviour {
                 _BoardMan.GamePaused = true;
                 _QuizMan.Init(true);
                 break;
+            case Item.Type.Energy:
+                //give energy
+                if(energy < maxEnergy)
+                     energy++;
+                //blah
+                break;
             case Item.Type.Damage:
                 //Player Data Calls
                 health--;
                 //UI Calls
                 break;
-            case Item.Type.None:
-                //Player Data Calls
-                //UI Calls
+            case Item.Type.EBoost:
+                maxEnergy++;
+                energy = maxEnergy;
                 break;
-            case Item.Type.Energy:
-                //give energy
-                //blah
+            case Item.Type.HBoost:
+                maxHealth++;
+                health = maxHealth;
                 break;
             default:
                 CBUG.Error("Bad Item type given! " + TargetItem.ToString());

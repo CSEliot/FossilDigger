@@ -45,6 +45,8 @@ public class QuizMan : MonoBehaviour {
     public int DailyQuestionsMax = 3;
     private int currentDailyQuestions;
 
+    private int tilesToTeleport;
+
 	// Use this for initialization
 	void Start () {
 
@@ -54,6 +56,7 @@ public class QuizMan : MonoBehaviour {
         }
 
         currentQuestion = -1;
+        tilesToTeleport = 0;
         LOLSDK.Instance.QuestionsReceived += new QuestionListReceivedHandler(GetQuestions);
     }
 	
@@ -131,12 +134,13 @@ public class QuizMan : MonoBehaviour {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Thanks;
                 showConfirmationPanel(true);
                 StartCoroutine(hideConfirmationPanel(true));
+                tilesToTeleport += 10;
             }
             else
             {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Anger;
-                showConfirmationPanel(true);
-                StartCoroutine(hideConfirmationPanel(true));
+                showConfirmationPanel(false);
+                StartCoroutine(hideConfirmationPanel(false));
             }
             StartCoroutine(delayNextQuestion(true));
         }
@@ -145,8 +149,9 @@ public class QuizMan : MonoBehaviour {
             if (quizzes[currentQuestion].Answers_ID[answerNum] == quizzes[currentQuestion].CorrectAnswer_ID)
             {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Thanks;
-                showConfirmationPanel(false);
-                StartCoroutine(hideConfirmationPanel(false));
+                showConfirmationPanel(true);
+                StartCoroutine(hideConfirmationPanel(true));
+                tilesToTeleport += 10;
             }
             else
             {
@@ -350,6 +355,8 @@ public class QuizMan : MonoBehaviour {
             QuizAnim.SetTrigger("Exit");
             _BoardMan.GamePaused = false;
             currentDailyQuestions = 0;
+            _BoardMan.TeleportDistance(tilesToTeleport);
+            tilesToTeleport = 0;
         }
         else
         {

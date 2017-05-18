@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Item : MonoBehaviour {
 
     public Sprite[] GFXs;
-    public Type ItemType;
+    private Type itemType;
     public int[] ExpYieldPerType;
     public int[] DamagePerType;
     public Image Img;
@@ -33,19 +33,26 @@ public class Item : MonoBehaviour {
 		
 	}
 
-    public void SetType(Item.Type ItemType)
-    {
-        if(ItemType == Type.None)
-        {
-            Img.enabled = false;
+    public Type ItemType {
+        get {
+            Type tempType = itemType;
+            ItemType = Type.None;
+            return tempType;
         }
-        else
-        {
-            Img.enabled = true;
-            Img.sprite = GFXs[((int)ItemType) - 1];
-            Damage = DamagePerType[((int)ItemType) - 1];
-            ExpYield = ExpYieldPerType[(int)ItemType - 1];
-            this.ItemType = ItemType;
+
+        set {
+            itemType = value;
+            if (value == Type.None)
+            {
+                Img.enabled = false;
+            }
+            else
+            {
+                Img.enabled = true;
+                Img.sprite = GFXs[((int)itemType) - 1];
+                //Damage = DamagePerType[((int)itemType) - 1];
+                //ExpYield = ExpYieldPerType[(int)itemType - 1];
+            }
         }
     }
 }
