@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour {
     private int maxEnergy;
     private int maxHealth;
 
+    public int ZeroHealthPunishment;
+    public int ZeroEnergyPunishment;
+
 
     // Use this for initialization
     void Start () {
@@ -116,6 +119,7 @@ public class GameManager : MonoBehaviour {
             case Item.Type.Damage:
                 //Player Data Calls
                 health--;
+
                 //UI Calls
                 break;
             case Item.Type.EBoost:
