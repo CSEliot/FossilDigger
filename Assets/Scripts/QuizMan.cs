@@ -306,8 +306,7 @@ public class QuizMan : MonoBehaviour {
                 quizzes[x].Answers[y] = "A" + y;
                 quizzes[x].Answers_ID[y] = "" + y;
                 quizzes[x].Q_ID = "" + x;
-                quizzes[x].CorrectAnswer_ID = "" + Mathf.Clamp(x, 1, 4);
-                CBUG.Do("Answer added: " + y);
+                quizzes[x].CorrectAnswer_ID = "" + 0; //for testing, 1 is always correct.
             }
         }
     }

@@ -70,7 +70,7 @@ public class BoardMan : MonoBehaviour {
     /// </summary>
     private Vector2 boardSpacePos;
     public GameObject StartingTile;
-    private bool isOnEdge;
+    private bool isFacingEdge;
     private Vector2 nextPosVector;
     #endregion
 
@@ -103,7 +103,7 @@ public class BoardMan : MonoBehaviour {
         totalPlayableCol = TotalCol - 2;
         gamePaused = false;
         topRowDisabled = true;
-        isOnEdge = true;
+        isFacingEdge = true;
         teleporting = false;
     }
 	
@@ -189,20 +189,27 @@ public class BoardMan : MonoBehaviour {
         if (gamePaused)
             return;
 
-        isOnEdge = false;
+        isFacingEdge = false;
 
+        int getEdgeItem = 0;
         Direction targetDirection = GetDirection(TargetPos);
         Item.Type targetItem; 
         switch (targetDirection)
         {
             case Direction.North:
                 if (boardSpacePos.y <= AdjustDownThreshold)
-                    isOnEdge = true;
+                {
+                    isFacingEdge = true;
+                    getEdgeItem -= 1;
+                }
                 nextPosVector = new Vector2(0, -1);
                 break;
             case Direction.South:
                 if (boardSpacePos.y >= AdjustUpThreshold)
-                    isOnEdge = true;
+                {
+                    isFacingEdge = true;
+                    getEdgeItem += 1;
+                }
                 nextPosVector = new Vector2(0, 1);
                 break;
             case Direction.East:
@@ -221,25 +228,21 @@ public class BoardMan : MonoBehaviour {
         //world space y of 0 is invisible wall, can't move into it.
         if(worldSpacePos.y + nextPosVector.y != 0)
             worldSpacePos += nextPosVector;
-        if (!isOnEdge)
+        if (!isFacingEdge)
             boardSpacePos += nextPosVector;
-        updateItemHistory();
+        targetItem = ItemBoardObjs[(int)boardSpacePos.y + getEdgeItem][(int)boardSpacePos.x].GetComponent<Item>().ItemType;
+        updateItemUsageHistory();
         updateItemsOnBoard();
-        targetItem = ItemBoardObjs[(int)boardSpacePos.y][(int)boardSpacePos.x].GetComponent<Item>().ItemType;//ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
-        Game.Update(targetDirection, targetItem, isOnEdge, teleporting);
+        Game.Update(targetDirection, targetItem, isFacingEdge, teleporting);
         testEdgeCases();
     }
 
     /// <summary>
-    /// Functions to run eventually by the end of a 
-    /// move or teleport:
-    ///  - updateItemHistory
-    ///  - testEdgeCases
-    ///  - updateItems
-    ///
+    /// Records usage of an item at current space.
+    /// MUST CALL BEFORE ITEM BOARD UPDATE.
     /// </summary>
     #region On Move
-    private void updateItemHistory()
+    private void updateItemUsageHistory()
     {
         int newRow = (int)worldSpacePos.y - (int)boardSpacePos.y + (TotalRows - 1); //New Row standardized
         if (newRow > deepestRowGenerated)
@@ -247,12 +250,12 @@ public class BoardMan : MonoBehaviour {
             deepestRowGenerated++;
             usedItemHistory.Add(new List<int>());
         }
-        if(!teleporting)
+        if (!teleporting)
             usedItemHistory[(int)worldSpacePos.y].Add((int)worldSpacePos.x);
     }
 
     /// <summary>
-    /// NEEDS BETTER DESCRIPTION
+    /// For disabling or enabling the invisible wall top row, Y = 0.
     /// </summary>
     private void testEdgeCases()
     {
@@ -280,7 +283,7 @@ public class BoardMan : MonoBehaviour {
     }
 
     /// <summary>
-    /// Arrange items based on player location, relative to tile's unique world position.
+    /// Assign items based on positioning of all tiles' world space.
     /// </summary>
     private void updateItemsOnBoard()
     {
@@ -320,25 +323,29 @@ public class BoardMan : MonoBehaviour {
     public void TeleportDistance(int worldY, int worldX = 0)
     {
         teleporting = true;
-        if (worldX != 0)
-        {
-            Vector2 horizTarget = new Vector2(worldX > 0 ? 99f : -99f, boardSpacePos.y);
-            worldX = Mathf.Abs(worldX);
-            for (; worldX > 0; worldX--)
-            {
-                Move(horizTarget);
-                if (worldSpacePos.x <= 0 || worldSpacePos.x >= totalPlayableCol - 1)
-                    break;
-            }
-        }
+        //if (worldX != 0)
+        //{
+        //    if (worldSpacePos.x + worldX < 0)
+        //        worldX = 0 - (int)worldSpacePos.x + 1;
+        //    if (worldSpacePos.x + worldX > totalPlayableCol - 1)
+        //        worldX = totalPlayableCol - (int)worldSpacePos.x - 1;
+        //    Vector2 horizTarget = new Vector2(worldX > 0 ? 99f : -99f, boardSpacePos.y);
+        //    worldX = Mathf.Abs(worldX);
+        //    for (; worldX > 0; worldX--)
+        //    {
+        //        Move(horizTarget);
+        //        if (worldSpacePos.x <= 0 || worldSpacePos.x >= totalPlayableCol - 1)
+        //            break;
+        //    }
+        //}
         if (worldY != 0)
         {
+            if (worldSpacePos.y + worldY <= 0)
+                worldY = 0 - (int)worldSpacePos.y + 1;
             Vector2 vertTarget = new Vector2(boardSpacePos.x, worldY > 0 ? 99f : -99f);
             worldY = Mathf.Abs(worldY);
             for (; worldY > 0; worldY--)
             {
-                if (worldSpacePos.y <= 1)
-                    break;
                 Move(vertTarget);
             }
         }

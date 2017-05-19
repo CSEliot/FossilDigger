@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using LoLSDK;
 
 public class GameManager : MonoBehaviour {
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour {
     public int StartingAbsoluteAge;
 
     private float depth;
+    private float deepestDepth;
     private float absoluteAge;
 
     private int energy;
@@ -25,6 +27,9 @@ public class GameManager : MonoBehaviour {
     public int ZeroHealthPunishment;
     public int ZeroEnergyPunishment;
 
+    public GameObject GameOverScreen;
+    public Text CongratsText;
+
 
     // Use this for initialization
     void Start () {
@@ -32,7 +37,7 @@ public class GameManager : MonoBehaviour {
         CBUG.Do("PreQHandle");
         LOLSDK.Instance.QuestionsReceived += new QuestionListReceivedHandler(this.QuestionsReceived);
         CBUG.Do("PostQHandle");
-        LOLSDK.Instance.SubmitProgress(0, 0, 8);
+        LOLSDK.Instance.SubmitProgress(0, 0, 100);
         HUDMan.SetAbsoluteAge(StartingAbsoluteAge);
         HUDMan.SetDepth(StartingDepth);
         HUDMan.SetEnergy(StartingEnergy, StartingEnergy);
@@ -76,10 +81,18 @@ public class GameManager : MonoBehaviour {
     /// <param name="TargetItem">Item the player landed on.</param>
     public void Update(BoardMan.Direction Direction, Item.Type TargetItem, bool onEdge, bool teleporting)
     {
+        //Teleporting doesn't consume energy.
+        if (!teleporting)
+        {
+            energy--;   
+        }
+        else
+        {
+            TargetItem = Item.Type.None;
+        }
         //where should item handle code go? Does GameManager actually do the item action?
         if(Direction != BoardMan.Direction.None)
         {
-            energy--;   
             if(Direction == BoardMan.Direction.North)
             {
                 depth -= 10;
@@ -89,6 +102,8 @@ public class GameManager : MonoBehaviour {
             {
                 depth += 10;
                 absoluteAge += 3;
+                if (depth > deepestDepth)
+                    deepestDepth = depth;
             }
         }
 
@@ -152,11 +167,29 @@ public class GameManager : MonoBehaviour {
     public void Update(BoardMan.Direction Direction, Item.Type Item)
     {
         //where should item handle code go? Does GameManager actually do the item action?
-        Update(Direction, Item, false);
+        Update(Direction, Item, false, false);
     }
 
     private void assignStartingValues()
     {
 
+    }
+
+    public void GameOver()
+    {
+        CongratsText.text = "Game is over!\nCongrats! The furthest you dug was: " + deepestDepth;
+        GameOverScreen.SetActive(true);
+        LOLSDK.Instance.SubmitProgress((int)deepestDepth, 100, 100);
+        LOLSDK.Instance.CompleteGame();
+    }
+
+    public float Depth {
+        get {
+            return depth;
+        }
+
+        //set {
+        //    depth = value;
+        //}
     }
 }
