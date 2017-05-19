@@ -189,7 +189,8 @@ public class BoardMan : MonoBehaviour {
         if (gamePaused)
             return;
 
-        isOnEdge = teleporting ? true : false;
+        isOnEdge = false;
+
         Direction targetDirection = GetDirection(TargetPos);
         Item.Type targetItem; 
         switch (targetDirection)
@@ -217,15 +218,15 @@ public class BoardMan : MonoBehaviour {
                 CBUG.Error("Bad Direction given!" + targetDirection.ToString());
                 break;
         }
-        worldSpacePos += nextPosVector;
+        //world space y of 0 is invisible wall, can't move into it.
+        if(worldSpacePos.y + nextPosVector.y != 0)
+            worldSpacePos += nextPosVector;
         if (!isOnEdge)
             boardSpacePos += nextPosVector;
-        targetItem = ItemBoardObjs[(int)boardSpacePos.y][(int)boardSpacePos.x].GetComponent<Item>().ItemType;//ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
-        if (teleporting)
-            targetItem = Item.Type.None;
-        Game.Update(targetDirection, targetItem, isOnEdge);
         updateItemHistory();
         updateItemsOnBoard();
+        targetItem = ItemBoardObjs[(int)boardSpacePos.y][(int)boardSpacePos.x].GetComponent<Item>().ItemType;//ItemBoardTypeHistory[(int)TileWorldPos.y][(int)TileWorldPos.x - 1];
+        Game.Update(targetDirection, targetItem, isOnEdge, teleporting);
         testEdgeCases();
     }
 
@@ -292,7 +293,9 @@ public class BoardMan : MonoBehaviour {
         {
             for (int boardX = 0; boardX < totalPlayableCol; boardX++)
             {
-                int worldY = boardY + (int)worldSpacePos.y - (int)boardSpacePos.y;
+                int worldY = boardY + (int)Mathf.Clamp(
+                                            worldSpacePos.y - boardSpacePos.y,
+                                            0f, 9999f);
                 int worldX = boardX;
                 if (usedItemHistory[worldY].Contains(worldX))
                 {
@@ -320,20 +323,26 @@ public class BoardMan : MonoBehaviour {
         if (worldX != 0)
         {
             Vector2 horizTarget = new Vector2(worldX > 0 ? 99f : -99f, boardSpacePos.y);
-            worldY = Mathf.Abs(worldX);
+            worldX = Mathf.Abs(worldX);
             for (; worldX > 0; worldX--)
+            {
                 Move(horizTarget);
-            
+                if (worldSpacePos.x <= 0 || worldSpacePos.x >= totalPlayableCol - 1)
+                    break;
+            }
         }
         if (worldY != 0)
         {
             Vector2 vertTarget = new Vector2(boardSpacePos.x, worldY > 0 ? 99f : -99f);
             worldY = Mathf.Abs(worldY);
             for (; worldY > 0; worldY--)
+            {
+                if (worldSpacePos.y <= 1)
+                    break;
                 Move(vertTarget);
+            }
         }
         teleporting = false;
-        //updateItemHistory();
         updateItemsOnBoard();
         testEdgeCases();
     }

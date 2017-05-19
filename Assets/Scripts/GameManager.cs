@@ -74,12 +74,12 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     /// <param name="Direction"></param>
     /// <param name="TargetItem">Item the player landed on.</param>
-    public void Update(BoardMan.Direction Direction, Item.Type TargetItem, bool onEdge)
+    public void Update(BoardMan.Direction Direction, Item.Type TargetItem, bool onEdge, bool teleporting)
     {
-        energy--;   
         //where should item handle code go? Does GameManager actually do the item action?
         if(Direction != BoardMan.Direction.None)
         {
+            energy--;   
             if(Direction == BoardMan.Direction.North)
             {
                 depth -= 10;
@@ -97,6 +97,7 @@ public class GameManager : MonoBehaviour {
         else
             CharCon.Rotate(Direction);
 
+        
         switch (TargetItem)
         {
             case Item.Type.None:
@@ -119,7 +120,6 @@ public class GameManager : MonoBehaviour {
             case Item.Type.Damage:
                 //Player Data Calls
                 health--;
-
                 //UI Calls
                 break;
             case Item.Type.EBoost:
@@ -133,6 +133,15 @@ public class GameManager : MonoBehaviour {
             default:
                 CBUG.Error("Bad Item type given! " + TargetItem.ToString());
                 break;
+        }
+        if (energy == 0 || health == 0)
+        {
+            int totalPunishment =
+                (energy == 0 ? ZeroEnergyPunishment : 0) +
+                (health == 0 ? ZeroHealthPunishment : 0);
+            energy = maxEnergy;
+            health = maxHealth;
+            _BoardMan.TeleportDistance(totalPunishment);
         }
         HUDMan.SetEnergy(energy, maxEnergy);
         HUDMan.SetHealth(health, maxHealth);
