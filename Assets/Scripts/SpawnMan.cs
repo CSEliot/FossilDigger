@@ -43,7 +43,8 @@ public class SpawnMan : MonoBehaviour {
         //    default:
         //        CBUG.SrsError("Bad ItemType given!");
         //        break;
-        //}
+        //} 
+
     }
 
     private Item.Type _spawnOnChance(float rngNumber)
