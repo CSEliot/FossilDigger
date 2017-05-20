@@ -8,9 +8,11 @@ public class Timer : MonoBehaviour {
 
     public GameManager _GameManager;
 
-    public Text AreYouSure;
-    public Text AreYouSureBG;
-    public InputField MinutesField;
+    public Text AreYouSureText;
+    public Text AreYouSureTextBG;
+
+    public Text HowManyMinutesText;
+    public Text HowManyMinutesTextBG;
 
     public GameObject[] DisableOnStart;
     public GameObject EnableOnNo;
@@ -26,7 +28,6 @@ public class Timer : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        MinutesField.characterLimit = 2;
         minutes = 0;
         timerStarted = false;
 	}
@@ -41,15 +42,34 @@ public class Timer : MonoBehaviour {
             if (secondsRemaining % 20 == 0)
                 LOLSDK.Instance.SubmitProgress((int)_GameManager.Depth, secondsRemaining / (minutes * 60), 100);
             if (secondsRemaining == 0)
+            {
                 _GameManager.GameOver();
+                timerStarted = false;
+                TimeText.text = "Fossil Explorer";
+                TimeTextBG.text = "Fossil Explorer";
+            }
         }
 	}
 
     public void SetAreYouSure()
     {
-        AreYouSure.text = MinutesField.text + " minutes. \nAre you sure?";
-        AreYouSureBG.text = MinutesField.text + " minutes. \nAre you sure?";
-        minutes = System.Convert.ToInt32(MinutesField.text);
+        AreYouSureText.text = minutes + " minutes. \nAre you sure?";
+        AreYouSureTextBG.text = minutes + " minutes. \nAre you sure?";
+    }
+
+    public void IncreaseMinutes()
+    {
+        minutes++;
+        HowManyMinutesText.text = "How many minutes?\n" + minutes;
+        HowManyMinutesTextBG.text = "How many minutes?\n" + minutes;
+    }
+
+    public void DecreaseMinutes()
+    {
+        if(minutes != 0)
+            minutes--;
+        HowManyMinutesText.text = "How many minutes?\n" + minutes;
+        HowManyMinutesTextBG.text = "How many minutes?\n" + minutes;
     }
 
     public void Yes()

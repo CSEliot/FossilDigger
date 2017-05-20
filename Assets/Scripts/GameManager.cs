@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour {
 
     public GameObject GameOverScreen;
     public Text CongratsText;
+    public Text CongratsTextBG;
 
 
     // Use this for initialization
@@ -170,17 +171,19 @@ public class GameManager : MonoBehaviour {
         Update(Direction, Item, false, false);
     }
 
-    private void assignStartingValues()
+    private IEnumerator endGame()
     {
-
+        yield return new WaitForSeconds(5f);
+        LOLSDK.Instance.CompleteGame();
     }
 
     public void GameOver()
     {
         CongratsText.text = "Game is over!\nCongrats! The furthest you dug was: " + deepestDepth;
+        CongratsTextBG.text = "Game is over!\nCongrats! The furthest you dug was: " + deepestDepth;
         GameOverScreen.SetActive(true);
         LOLSDK.Instance.SubmitProgress((int)deepestDepth, 100, 100);
-        LOLSDK.Instance.CompleteGame();
+        StartCoroutine(endGame());
     }
 
     public float Depth {
