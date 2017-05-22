@@ -27,6 +27,10 @@ public class BoardMan : MonoBehaviour {
     public int Seed;
     public bool UseSeed;
 
+    private Image[] backgroundImgs;
+    public Sprite[] backgroundSprites;
+
+
     #region Tile Organization - Active
     /// <summary>
     /// from [0 - 6], [0 - inf) storing what item spawned and where, generated procedurally.
@@ -53,6 +57,7 @@ public class BoardMan : MonoBehaviour {
     public float YPosStartWorldSpace;
     public int TotalRows;
     private int deepestRowGenerated;
+    private int highestCurrentRow;
     public int TotalCol;
     private int totalPlayableCol;
     public GameObject ItemPrefab;
@@ -88,11 +93,14 @@ public class BoardMan : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        backgroundImgs = new Image[63];
+        
         //Debug.Log("Welp!");
         //ItemBoardTypeHistory = new List<Item.Type[]>();
         ItemBoardObjs = new List<GameObject[]>();
         usedItemHistory = new List<List<int>>();
         deepestRowGenerated = -1;
+        highestCurrentRow = 0;
         Arrange();
         //Debug.Log("YES");
         if (UseSeed)
@@ -151,6 +159,7 @@ public class BoardMan : MonoBehaviour {
             {
                 //Background tiles.
                 transform.GetChild(y).GetChild(x).GetComponent<RectTransform>().anchoredPosition = new Vector2(xPosRow, yPosRow);
+                transform.GetChild(y).GetChild(x).GetComponent<Image>().sprite = backgroundSprites[0];
                 xPosRow += 100f;
                 //Tiles holding items.
                 if(x > 0 && x < TotalCol - 1)
@@ -201,6 +210,7 @@ public class BoardMan : MonoBehaviour {
                 {
                     isFacingEdge = true;
                     getEdgeItem -= 1;
+                    highestCurrentRow--;
                 }
                 nextPosVector = new Vector2(0, -1);
                 break;
@@ -209,6 +219,7 @@ public class BoardMan : MonoBehaviour {
                 {
                     isFacingEdge = true;
                     getEdgeItem += 1;
+                    highestCurrentRow++;
                 }
                 nextPosVector = new Vector2(0, 1);
                 break;
@@ -294,24 +305,40 @@ public class BoardMan : MonoBehaviour {
 
         for (int boardY = 0; boardY < TotalRows; boardY++)
         {
-            for (int boardX = 0; boardX < totalPlayableCol; boardX++)
+            for (int boardX = 0; boardX < TotalCol; boardX++)
             {
-                int worldY = boardY + (int)Mathf.Clamp(
-                                            worldSpacePos.y - boardSpacePos.y,
-                                            0f, 9999f);
-                int worldX = boardX;
-                if (usedItemHistory[worldY].Contains(worldX))
+                updateTileBackground(boardY, boardX);
+                if (boardX > 0 && boardX < totalPlayableCol)
                 {
-                    ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = Item.Type.None;
-                }
-                else
-                {
-                    Random.InitState(worldY * (worldX + 1));
-                    Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
-                    ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = tempItemType;//ItemBoardTypeHistory[y + ((int)TileWorldPos.y - (AdjustDownThreshold))][col]);
+                    boardX--; //tiles exist only in middle
+                    int worldY = boardY + (int)Mathf.Clamp(
+                                                worldSpacePos.y - boardSpacePos.y,
+                                                0f, 9999f);
+                    int worldX = boardX;
+                    if (usedItemHistory[worldY].Contains(worldX))
+                    {
+                        ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = Item.Type.None;
+                    }
+                    else
+                    {
+                        Random.InitState(worldY * (worldX + 1));
+                        Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
+                        ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = tempItemType;//ItemBoardTypeHistory[y + ((int)TileWorldPos.y - (AdjustDownThreshold))][col]);
+                    }
+                    boardX++; //fix change. YES THIS IS LAZY I KNOW
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Tile difficulty is also assigned here, for the seeker.
+    /// </summary>
+    /// <param name="boardY"></param>
+    /// <param name="boardX"></param>
+    private void updateTileBackground(int boardY, int boardX)
+    {
+        transform.GetChild(boardY).GetChild(boardX).GetComponent<Image>().sprite = backgroundSprites[Game.GetDifficultyOfTile(highestCurrentRow + boardY)];   
     }
     #endregion
 

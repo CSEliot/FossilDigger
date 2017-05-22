@@ -18,7 +18,7 @@ public class Timer : MonoBehaviour {
     public GameObject EnableOnNo;
     public GameObject DisableOnNo;
 
-    private int minutes;
+    private int totalMinutes;
     private int secondsRemaining;
 
     public Text TimeText;
@@ -28,7 +28,7 @@ public class Timer : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        minutes = 0;
+        totalMinutes = 0;
         timerStarted = false;
 	}
 	
@@ -40,7 +40,7 @@ public class Timer : MonoBehaviour {
             TimeText.text = "" + secondsRemaining;
             TimeTextBG.text = "" + secondsRemaining;
             if (secondsRemaining % 20 == 0)
-                LOLSDK.Instance.SubmitProgress((int)_GameManager.Depth, secondsRemaining / (minutes * 60), 100);
+                LOLSDK.Instance.SubmitProgress((int)_GameManager.Depth, secondsRemaining / (totalMinutes * 60), 100);
             if (secondsRemaining == 0)
             {
                 _GameManager.GameOver();
@@ -53,28 +53,28 @@ public class Timer : MonoBehaviour {
 
     public void SetAreYouSure()
     {
-        AreYouSureText.text = minutes + " minutes. \nAre you sure?";
-        AreYouSureTextBG.text = minutes + " minutes. \nAre you sure?";
+        AreYouSureText.text = totalMinutes + " minutes. \nAre you sure?";
+        AreYouSureTextBG.text = totalMinutes + " minutes. \nAre you sure?";
     }
 
     public void IncreaseMinutes()
     {
-        minutes++;
-        HowManyMinutesText.text = "How many minutes?\n" + minutes;
-        HowManyMinutesTextBG.text = "How many minutes?\n" + minutes;
+        totalMinutes++;
+        HowManyMinutesText.text = "How many minutes?\n" + totalMinutes;
+        HowManyMinutesTextBG.text = "How many minutes?\n" + totalMinutes;
     }
 
     public void DecreaseMinutes()
     {
-        if(minutes != 0)
-            minutes--;
-        HowManyMinutesText.text = "How many minutes?\n" + minutes;
-        HowManyMinutesTextBG.text = "How many minutes?\n" + minutes;
+        if(totalMinutes != 0)
+            totalMinutes--;
+        HowManyMinutesText.text = "How many minutes?\n" + totalMinutes;
+        HowManyMinutesTextBG.text = "How many minutes?\n" + totalMinutes;
     }
 
     public void Yes()
     {
-        if (minutes == 0)
+        if (totalMinutes == 0)
         {
             No();
             return;
@@ -96,6 +96,6 @@ public class Timer : MonoBehaviour {
     private void startTimer()
     {
         timerStarted = true;
-        secondsRemaining = minutes * 60;
+        secondsRemaining = totalMinutes * 60;
     }
 }

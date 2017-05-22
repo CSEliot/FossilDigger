@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CallAnimationIn : MonoBehaviour {
 
-    public string 
+    //public string 
 
 	// Use this for initialization
 	void Start () {

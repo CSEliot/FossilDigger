@@ -7,6 +7,7 @@ using LoLSDK;
 public class QuizMan : MonoBehaviour {
 
     public BoardMan _BoardMan;
+    public GameManager _GameMan;
 
     public GameObject[] QButtons;
     public GameObject QPanel;
@@ -18,7 +19,8 @@ public class QuizMan : MonoBehaviour {
     [System.Serializable]
     public struct Quiz
     {
-        public string Question;
+        public string QuestionPt1;
+        public string QuestionPt2;
         public string Q_ID;
         public string[] Answers_ID;
         public string[] Answers;
@@ -29,7 +31,11 @@ public class QuizMan : MonoBehaviour {
 
     private Quiz[] quizzes;
 
-    public Text QuestionBox;
+    public Text QuestionBox1;
+    public Text QuestionBox2;
+    public Text QuestionBoxBig;
+    public GameObject QuestionClickToExpandText;
+
     public Text[] AnswerBoxes;
 
     private int currentQuestion;
@@ -37,7 +43,6 @@ public class QuizMan : MonoBehaviour {
 
     public Image QuizImg;
     public GameObject QuizImgObject;
-    public GameObject QuizImgObjectBackground;
     public Sprite LoadingImg;
 
     private string[] alternativeIDs;
@@ -81,7 +86,8 @@ public class QuizMan : MonoBehaviour {
             quizzes[x].TotalAnswerChoices = qTemp.questions[x].alternatives.Length;
             quizzes[x].Answers = new string[quizzes[x].TotalAnswerChoices];
             quizzes[x].Answers_ID = new string[quizzes[x].TotalAnswerChoices];
-            quizzes[x].Question = checkForImage(qTemp.questions[x].stem);
+            quizzes[x].QuestionPt1 = checkForImagePt1(qTemp.questions[x].stem);
+            quizzes[x].QuestionPt2 = checkForImagePt2(qTemp.questions[x].stem);
             quizzes[x].Q_ID = qTemp.questions[x].questionId;
             quizzes[x].SpriteURL = qTemp.questions[x].imageURL;
             if (string.IsNullOrEmpty(quizzes[x].SpriteURL))
@@ -134,7 +140,7 @@ public class QuizMan : MonoBehaviour {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Thanks;
                 showConfirmationPanel(true);
                 StartCoroutine(hideConfirmationPanel(true));
-                tilesToTeleport += 10;
+                tilesToTeleport += _GameMan.CorrectAnswerReward;
             }
             else
             {
@@ -151,7 +157,7 @@ public class QuizMan : MonoBehaviour {
                 //gCont.SpeechBubble.GetComponentInChildren<Text>().text = gCont.Days[gCont.CurrentDay][gCont.CurrentNPC].Thanks;
                 showConfirmationPanel(true);
                 StartCoroutine(hideConfirmationPanel(true));
-                tilesToTeleport += 10;
+                tilesToTeleport += _GameMan.CorrectAnswerReward;
             }
             else
             {
@@ -173,7 +179,7 @@ public class QuizMan : MonoBehaviour {
         //If no image exists, hide the graphic
         QuizImg.color = new Color(1f, 1f, 1f, 0f);
         QuizImgObject.SetActive(false);
-        QuizImgObjectBackground.SetActive(false);
+        QuestionClickToExpandText.SetActive(false);
 
         string spriteURL = null;
         spriteURL = quizzes[currentQuestion].SpriteURL;
@@ -182,6 +188,7 @@ public class QuizMan : MonoBehaviour {
             //If it DOES Exist, first set graphic to "loading"
             QuizImg.sprite = LoadingImg;
             StartCoroutine(setQuestionImage(quizzes[currentQuestion].SpriteURL));
+            QuestionClickToExpandText.SetActive(true);
         }
 
         for (int x = 0; x < quizzes[currentQuestion].TotalAnswerChoices; x++)
@@ -204,13 +211,24 @@ public class QuizMan : MonoBehaviour {
     /// </summary>
     public void FinishQInit()
     {
-        QuestionBox.text = quizzes[currentQuestion].Question;
+        if (quizzes[currentQuestion].QuestionPt2 == "")
+        {
+            QuestionBoxBig.text = quizzes[currentQuestion].QuestionPt1;
+            QuestionBox1.text = "";
+            QuestionBox2.text = "";
+        }
+        else
+        {
+            QuestionBoxBig.text = "";
+            QuestionBox1.text = quizzes[currentQuestion].QuestionPt1;
+            QuestionBox2.text = quizzes[currentQuestion].QuestionPt2;
+        }
+
         string spriteURL = null;
         spriteURL = quizzes[currentQuestion].SpriteURL;
         if (!string.IsNullOrEmpty(spriteURL))
         {
             QuizImgObject.SetActive(true);
-            QuizImgObjectBackground.SetActive(true);
             QuizImg.color = new Color(1f, 1f, 1f, 1f);
         }
 
@@ -292,14 +310,19 @@ public class QuizMan : MonoBehaviour {
         quizzes = new Quiz[quizTotal];
         for (int x = 0; x < quizTotal; x++)
         {
+            int hasImage = 1;// Random.Range(0, 2);
+            string qString = "Q" + x;
+            if (hasImage != 0)
+                qString += "[IMAGE]" + x;
             CBUG.Do("Question added: " + x);
             quizzes[x] = new Quiz();
-            quizzes[x].Question = "Q" + x;
+            quizzes[x].QuestionPt1 = checkForImagePt1(qString);
+            quizzes[x].QuestionPt2 = checkForImagePt2(qString);
             quizzes[x].TotalAnswerChoices = Random.Range(1, 4);
             quizzes[x].Answers = new string[quizzes[x].TotalAnswerChoices];
             quizzes[x].Answers_ID = new string[quizzes[x].TotalAnswerChoices];
             // 50/50 chance spriteURL is either null or an image.
-            quizzes[x].SpriteURL =  Random.Range(0, 2) == 0 ? null : "http://i.imgur.com/jQLvoPK.png";
+            quizzes[x].SpriteURL = hasImage == 0 ? null : "http://i.imgur.com/jQLvoPK.png";
 
             for (int y = 0; y < quizzes[x].TotalAnswerChoices; y++)
             {
@@ -311,13 +334,23 @@ public class QuizMan : MonoBehaviour {
         }
     }
 
-    private string checkForImage(string text)
+    private string checkForImagePt1(string text)
     {
         if (text.Contains("[IMAGE]"))
         {
-            return text.Replace("[IMAGE]", "\n(See Image)\n");
+            int imgLoc = text.LastIndexOf("[");
+            return text.Substring(0, imgLoc);
         }
         return text;
+    }
+    private string checkForImagePt2(string text)
+    {
+        if (text.Contains("[IMAGE]"))
+        {
+            int imgLoc = text.LastIndexOf("[");
+            return text.Substring(imgLoc + 7); // 7 = length of [IMAGE]
+        }
+        return "";
     }
 
     private void showConfirmationPanel(bool isAnswerCorrect)

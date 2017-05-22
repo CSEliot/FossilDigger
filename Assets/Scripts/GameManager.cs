@@ -9,11 +9,15 @@ public class GameManager : MonoBehaviour {
     public QuizMan _QuizMan;
     public CharCon Player;
     public BoardMan _BoardMan;
+    public SpawnMan _SpawnMan;
+    public GameObject ZeroHealthAnimObj;
+    public GameObject ZeroEnergyAnimObj;
 
     public int StartingEnergy;
     public int StartingHealth;
     public int StartingDepth;
     public int StartingAbsoluteAge;
+    public int DepthPerRow;
 
     private float depth;
     private float deepestDepth;
@@ -31,6 +35,15 @@ public class GameManager : MonoBehaviour {
     public Text CongratsText;
     public Text CongratsTextBG;
 
+    /// <summary>
+    /// 0 - 17 in difficulty.
+    /// </summary>
+    private int maxDifficulty;
+    public int DepthPerDifficulty;
+    public int EnergySpawnLossPerDifficulty;
+    private float origEnergySpawnRate;
+
+    public int CorrectAnswerReward;
 
     // Use this for initialization
     void Start () {
@@ -47,7 +60,8 @@ public class GameManager : MonoBehaviour {
         health = StartingHealth;
         maxEnergy = StartingEnergy;
         maxHealth = StartingHealth;
-        //AudioManager.PlayM(0);
+        maxDifficulty = 17;
+        origEnergySpawnRate = _SpawnMan.Energy;
     }
 	
 	// Update is called once per frame
@@ -96,12 +110,12 @@ public class GameManager : MonoBehaviour {
         {
             if(Direction == BoardMan.Direction.North)
             {
-                depth -= 10;
+                depth -= DepthPerRow;
                 absoluteAge -= 3;
             }
             else if(Direction == BoardMan.Direction.South)
             {
-                depth += 10;
+                depth += DepthPerRow;
                 absoluteAge += 3;
                 if (depth > deepestDepth)
                     deepestDepth = depth;
@@ -124,6 +138,8 @@ public class GameManager : MonoBehaviour {
                 //Player Data Calls
                 //UI Calls
                 //QNA Popup
+                if (energy == 0)
+                    break;
                 _BoardMan.GamePaused = true;
                 _QuizMan.Init(true);
                 break;
@@ -152,12 +168,20 @@ public class GameManager : MonoBehaviour {
         }
         if (energy == 0 || health == 0)
         {
-            int totalPunishment =
-                (energy == 0 ? ZeroEnergyPunishment : 0) +
-                (health == 0 ? ZeroHealthPunishment : 0);
-            energy = maxEnergy;
-            health = maxHealth;
-            _BoardMan.TeleportDistance(totalPunishment);
+            if (health == 0)
+            {
+                ZeroHealthAnimObj.GetComponent<Animator>().SetTrigger("Quiz");
+                //coroutine
+                Tools.DelayAnim(ZeroHealthAnimObj.GetComponent<Animator>(), 1.5f, trigger: "Exit");
+            }
+            else if (energy == 0)
+            {
+                ZeroEnergyAnimObj.GetComponent<Animator>().SetTrigger("Quiz");
+                //coroutine
+                Tools.DelayAnim(ZeroEnergyAnimObj.GetComponent<Animator>(), 1.5f, trigger: "Exit");
+            }
+            StartCoroutine(teleportDuringAnim());
+            return;
         }
         HUDMan.SetEnergy(energy, maxEnergy);
         HUDMan.SetHealth(health, maxHealth);
@@ -171,12 +195,6 @@ public class GameManager : MonoBehaviour {
         Update(Direction, Item, false, false);
     }
 
-    private IEnumerator endGame()
-    {
-        yield return new WaitForSeconds(5f);
-        LOLSDK.Instance.CompleteGame();
-    }
-
     public void GameOver()
     {
         CongratsText.text = "Game is over!\nCongrats! The furthest you dug was: " + deepestDepth;
@@ -184,6 +202,13 @@ public class GameManager : MonoBehaviour {
         GameOverScreen.SetActive(true);
         LOLSDK.Instance.SubmitProgress((int)deepestDepth, 100, 100);
         StartCoroutine(endGame());
+    }
+
+    public int GetDifficultyOfTile(int rowNum)
+    {
+        int difficultyOfTile = (rowNum * DepthPerRow) / DepthPerDifficulty;
+        _SpawnMan.Energy = origEnergySpawnRate - (EnergySpawnLossPerDifficulty * difficultyOfTile);
+        return difficultyOfTile > maxDifficulty ? maxDifficulty: difficultyOfTile;
     }
 
     public float Depth {
@@ -195,4 +220,35 @@ public class GameManager : MonoBehaviour {
         //    depth = value;
         //}
     }
+
+    private IEnumerator teleportDuringAnim()
+    {
+        yield return new WaitForSeconds(1f);
+        // For if both energy and health == 0, energy anim comes after.
+        if (energy == 0 && health == 0)
+        {
+            ZeroEnergyAnimObj.GetComponent<Animator>().SetTrigger("Quiz");
+            Tools.DelayAnim(ZeroEnergyAnimObj.GetComponent<Animator>(), 1.5f, trigger: "Exit");
+        }
+
+        int totalPunishment =
+            (energy == 0 ? ZeroEnergyPunishment : 0) +
+            (health == 0 ? ZeroHealthPunishment : 0);
+        energy = maxEnergy;
+        health = maxHealth;
+
+
+        _BoardMan.TeleportDistance(totalPunishment);
+        HUDMan.SetEnergy(energy, maxEnergy);
+        HUDMan.SetHealth(health, maxHealth);
+        HUDMan.SetDepth(depth);
+        HUDMan.SetAbsoluteAge(absoluteAge + (3) * 10f); //arbitrary age calculat
+    }
+
+    private IEnumerator endGame()
+    {
+        yield return new WaitForSeconds(5f);
+        LOLSDK.Instance.CompleteGame();
+    }
+
 }
