@@ -138,8 +138,7 @@ public class GameManager : MonoBehaviour {
                 //Player Data Calls
                 //UI Calls
                 //QNA Popup
-                if (energy == 0)
-                    break;
+                energy++;
                 _BoardMan.GamePaused = true;
                 _QuizMan.Init(true);
                 break;

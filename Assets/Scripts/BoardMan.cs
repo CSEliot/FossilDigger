@@ -308,7 +308,7 @@ public class BoardMan : MonoBehaviour {
             for (int boardX = 0; boardX < TotalCol; boardX++)
             {
                 updateTileBackground(boardY, boardX);
-                if (boardX > 0 && boardX < totalPlayableCol)
+                if (boardX > 0 && boardX < totalPlayableCol + 1)
                 {
                     boardX--; //tiles exist only in middle
                     int worldY = boardY + (int)Mathf.Clamp(

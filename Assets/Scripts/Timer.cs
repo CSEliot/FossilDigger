@@ -28,7 +28,7 @@ public class Timer : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        totalMinutes = 0;
+        totalMinutes = 1;
         timerStarted = false;
 	}
 	
@@ -66,7 +66,7 @@ public class Timer : MonoBehaviour {
 
     public void DecreaseMinutes()
     {
-        if(totalMinutes != 0)
+        if(totalMinutes != 1)
             totalMinutes--;
         HowManyMinutesText.text = "How many minutes?\n" + totalMinutes;
         HowManyMinutesTextBG.text = "How many minutes?\n" + totalMinutes;
