@@ -94,7 +94,10 @@ public class QuizMan : MonoBehaviour {
             {
                 CBUG.Do("Question: " + quizzes[x].Answers_ID + " has no image.");
             }
-            CBUG.Do("Question imageURL: " + quizzes[x].SpriteURL);
+            else
+            {
+                CBUG.Do("Question imageURL: " + quizzes[x].SpriteURL);
+            }
 
             for (int y = 0; y < quizzes[x].TotalAnswerChoices; y++)
             {
@@ -211,7 +214,8 @@ public class QuizMan : MonoBehaviour {
     /// </summary>
     public void FinishQInit()
     {
-        if (quizzes[currentQuestion].QuestionPt2 == "")
+        //If no image exists
+        if (string.IsNullOrEmpty(quizzes[currentQuestion].SpriteURL))
         {
             QuestionBoxBig.text = quizzes[currentQuestion].QuestionPt1;
             QuestionBox1.text = "";
@@ -317,7 +321,7 @@ public class QuizMan : MonoBehaviour {
             CBUG.Do("Question added: " + x);
             quizzes[x] = new Quiz();
             quizzes[x].QuestionPt1 = checkForImagePt1(qString);
-            quizzes[x].QuestionPt2 = checkForImagePt2(qString);
+            quizzes[x].QuestionPt2 = checkForImagePt2("");
             quizzes[x].TotalAnswerChoices = Random.Range(1, 4);
             quizzes[x].Answers = new string[quizzes[x].TotalAnswerChoices];
             quizzes[x].Answers_ID = new string[quizzes[x].TotalAnswerChoices];

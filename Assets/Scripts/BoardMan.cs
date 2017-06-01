@@ -29,6 +29,7 @@ public class BoardMan : MonoBehaviour {
 
     private Image[] backgroundImgs;
     public Sprite[] backgroundSprites;
+    public Sprite[] fossilSprites;
 
 
     #region Tile Organization - Active
@@ -324,6 +325,11 @@ public class BoardMan : MonoBehaviour {
                         Random.InitState(worldY * (worldX + 1));
                         Item.Type tempItemType = SpawnMan.SpawnOnChance(Random.Range(0f, 100f));
                         ItemBoardObjs[boardY][boardX].GetComponent<Item>().ItemType = tempItemType;//ItemBoardTypeHistory[y + ((int)TileWorldPos.y - (AdjustDownThreshold))][col]);
+                        if (tempItemType == Item.Type.Fossil)
+                        {
+                            int tileDiff = Game.GetDifficultyOfTile(worldY);
+                            ItemBoardObjs[boardY][boardX].GetComponent<Image>().sprite = fossilSprites[ tileDiff > 10 ? 10 : tileDiff];
+                        }
                     }
                     boardX++; //fix change. YES THIS IS LAZY I KNOW
                 }
@@ -400,7 +406,7 @@ public class BoardMan : MonoBehaviour {
         else
             return Direction.None;
     }
-
+    
     public bool GamePaused {
         //get {
         //    return gamePaused;
@@ -409,6 +415,11 @@ public class BoardMan : MonoBehaviour {
         set {
             gamePaused = value;
         }
+    }
+
+    public static BoardMan GetSelf()
+    {
+        return GameObject.FindGameObjectWithTag("BoardMan").GetComponent<BoardMan>();
     }
 }
 

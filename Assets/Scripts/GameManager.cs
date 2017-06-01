@@ -47,11 +47,11 @@ public class GameManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        LOLSDK.Init("com.kiteliongames.fossildigger");
+        LOLSDK.Init("com.kiteliongames.fossilexplorer");
         CBUG.Do("PreQHandle");
         LOLSDK.Instance.QuestionsReceived += new QuestionListReceivedHandler(this.QuestionsReceived);
         CBUG.Do("PostQHandle");
-        LOLSDK.Instance.SubmitProgress(0, 0, 100);
+        LOLSDK.Instance.SubmitProgress(0, 0, 10);
         HUDMan.SetAbsoluteAge(StartingAbsoluteAge);
         HUDMan.SetDepth(StartingDepth);
         HUDMan.SetEnergy(StartingEnergy, StartingEnergy);
@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour {
         health = StartingHealth;
         maxEnergy = StartingEnergy;
         maxHealth = StartingHealth;
+        depth = StartingDepth;
         maxDifficulty = 17;
         origEnergySpawnRate = _SpawnMan.Energy;
     }
@@ -99,7 +100,8 @@ public class GameManager : MonoBehaviour {
         //Teleporting doesn't consume energy.
         if (!teleporting)
         {
-            energy--;   
+            if(!CBUG.DEBUG_ON || !Application.isEditor)
+                energy--;   
         }
         else
         {
@@ -150,7 +152,8 @@ public class GameManager : MonoBehaviour {
                 break;
             case Item.Type.Damage:
                 //Player Data Calls
-                health--;
+                if (!CBUG.DEBUG_ON || !Application.isEditor)
+                    health--;
                 //UI Calls
                 break;
             case Item.Type.EBoost:
@@ -199,7 +202,6 @@ public class GameManager : MonoBehaviour {
         CongratsText.text = "Game is over!\nCongrats! The furthest you dug was: " + deepestDepth;
         CongratsTextBG.text = "Game is over!\nCongrats! The furthest you dug was: " + deepestDepth;
         GameOverScreen.SetActive(true);
-        LOLSDK.Instance.SubmitProgress((int)deepestDepth, 100, 100);
         StartCoroutine(endGame());
     }
 
@@ -218,6 +220,12 @@ public class GameManager : MonoBehaviour {
         //set {
         //    depth = value;
         //}
+    }
+
+    public float DeepestDepth {
+        get {
+            return deepestDepth;
+        }
     }
 
     private IEnumerator teleportDuringAnim()

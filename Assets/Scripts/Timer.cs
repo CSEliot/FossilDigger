@@ -26,23 +26,37 @@ public class Timer : MonoBehaviour {
 
     public bool timerStarted;
 
+    private float progressThreshold;
+
+    private bool paused;
+
+    public GameObject PauseOverlay;
+
 	// Use this for initialization
 	void Start () {
         totalMinutes = 1;
         timerStarted = false;
-	}
+        progressThreshold = 0.10f;
+        LOLSDK.Instance.GameStateChanged += new GameStateChangedHandler(PauseIf);
+    }
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-        if (timerStarted)
+        if (timerStarted && !paused)
         {
             secondsRemaining--;
             TimeText.text = "" + secondsRemaining;
             TimeTextBG.text = "" + secondsRemaining;
-            if (secondsRemaining % 20 == 0)
-                LOLSDK.Instance.SubmitProgress((int)_GameManager.Depth, secondsRemaining / (totalMinutes * 60), 100);
+            float tempCurrentProgress = (((float)(totalMinutes * 60f) - secondsRemaining)) / ((float)totalMinutes * 60f);
+            if (tempCurrentProgress >= progressThreshold)
+            {
+                progressThreshold += 0.10f;
+                CBUG.Do("ProgresS: " + tempCurrentProgress);
+                LOLSDK.Instance.SubmitProgress((int)_GameManager.DeepestDepth, (int)(progressThreshold * 10) - 1, 10);
+            }
             if (secondsRemaining == 0)
             {
+                LOLSDK.Instance.SubmitProgress((int)_GameManager.DeepestDepth, 10, 10);
                 _GameManager.GameOver();
                 timerStarted = false;
                 TimeText.text = "Fossil Explorer";
@@ -97,5 +111,25 @@ public class Timer : MonoBehaviour {
     {
         timerStarted = true;
         secondsRemaining = totalMinutes * 60;
+    }
+
+    public void PauseIf(GameState gameState)
+    {
+        switch (gameState)
+        {
+            case GameState.Paused:
+                {
+                    paused = true;
+                    PauseOverlay.SetActive(true);
+                }
+                break;
+
+            case GameState.Resumed:
+                {
+                    paused = false;
+                    PauseOverlay.SetActive(false);
+                }
+                break;
+        }
     }
 }

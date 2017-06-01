@@ -11,19 +11,16 @@ public class HUDMan : MonoBehaviour {
     public GameObject DepthUI;
     public GameObject AbsoluteAgeUI;
 
-    private Image healthBarFill;
+    public Image HealthBarFill;
     private Text healthBarText;
-    private Image energyBarFill;
+    public Image EnergyBarFill;
     private Text energyBarText;
     private Text depthText;
     private Text absoluteAgeText;
 
 	// Use this for initialization
 	void Awake () {
-
-        healthBarFill = HealthBar.GetComponentInChildren<Image>();
         healthBarText = HealthBar.GetComponentInChildren<Text>();
-        energyBarFill = EnergyBar.GetComponentInChildren<Image>();
         energyBarText = EnergyBar.GetComponentInChildren<Text>();
         depthText = DepthUI.GetComponentInChildren<Text>();
         absoluteAgeText = AbsoluteAgeUI.GetComponentInChildren<Text>();
@@ -56,12 +53,12 @@ public class HUDMan : MonoBehaviour {
     #region Static Call Helpers
     private void _setHealth(int numerator, int denominator)
     {
-        healthBarFill.fillAmount = ((float)numerator) / ((float)denominator);
+        HealthBarFill.fillAmount = ((float)numerator) / ((float)denominator);
         healthBarText.text = numerator.ToString() + " / " + denominator.ToString();
     }
     private void _setEnergy(int numerator, int denominator)
     {
-        energyBarFill.fillAmount = ((float)numerator) / ((float)denominator);
+        EnergyBarFill.fillAmount = ((float)numerator) / ((float)denominator);
         energyBarText.text = numerator.ToString() + " / " + denominator.ToString();
     }
     private void _setDepth(float depth)
@@ -70,7 +67,7 @@ public class HUDMan : MonoBehaviour {
     }
     private void _setAbsoluteAge(float age)
     {
-        absoluteAgeText.text = age.ToString() + " Years Ago";
+        //absoluteAgeText.text = age.ToString() + " Years Ago";
     }
     //TODO FINISH THIS
     #endregion

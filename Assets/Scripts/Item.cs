@@ -13,6 +13,8 @@ public class Item : MonoBehaviour {
     public int ExpYield;
     public int Damage;
 
+    private BoardMan _BoardMan;
+
     public enum Type
     {
         None,
@@ -25,7 +27,7 @@ public class Item : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+        _BoardMan = BoardMan.GetSelf();
 	}
 	
 	// Update is called once per frame
@@ -50,8 +52,6 @@ public class Item : MonoBehaviour {
             {
                 Img.enabled = true;
                 Img.sprite = GFXs[((int)itemType) - 1];
-                //Damage = DamagePerType[((int)itemType) - 1];
-                //ExpYield = ExpYieldPerType[(int)itemType - 1];
             }
         }
     }
